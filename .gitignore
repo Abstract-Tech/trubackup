@@ -1,0 +1,5 @@
+dumps
+__pycache__
+
+*.pyc
+.vscode
