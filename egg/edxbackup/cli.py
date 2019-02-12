@@ -3,7 +3,7 @@ from edxbackup import mongo
 from edxbackup import mysql
 
 
-@click.group(context_settings={'help_option_names': ['-h', '--help', 'help']})
+@click.group(context_settings={"help_option_names": ["-h", "--help", "help"]})
 def main():
     pass
 

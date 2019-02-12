@@ -6,27 +6,27 @@ import click
 from edxbackup import options
 
 
-@click.command(name='mongo_dump')
+@click.command(name="mongo_dump")
 @options.mongo_host
 @options.mongo_port
 @options.database
 @options.output_dir
 def dump(mongo_host, mongo_port, database, output_dir):
     """Dumps MongoDB"""
-    print('Dumping MongoDB')
+    print("Dumping MongoDB")
     now = datetime.datetime.now().strftime(options.DUMP_FILENAME_DATE_FORMAT)
     output_filename = f"{now}-dump.sql.gz"
     output_path = os.path.join(output_dir, output_filename)
     cmd = f"mongodump -h {mongo_host}:{mongo_port} -d {database} --gzip --archive={output_path}"
 
     if database:
-        cmd += f' -d {database}'
+        cmd += f" -d {database}"
     print("Running:")
     print(cmd)
     os.system(cmd)
 
 
-@click.command(name='mongo_restore')
+@click.command(name="mongo_restore")
 @options.mongo_host
 @options.mongo_port
 @options.mongo_user
