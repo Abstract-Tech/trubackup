@@ -1,6 +1,6 @@
 FROM python:3.6-alpine as builder
-# Run with
-# docker run registry.abzt.de/edx-backup edxbackup
+
+RUN apk add mongodb-tools mariadb-client
 
 RUN pip install -U pip
 COPY egg /egg

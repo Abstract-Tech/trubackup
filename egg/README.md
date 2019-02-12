@@ -15,4 +15,8 @@ Usage
 
 Parameters can be passed either as environment variables or on the command line.
 
-TODO: document how to dump/restore
+Restore example:
+
+    docker run --network tutor_local_default -v $(pwd)/tum-dump/mongodump.tar.gz:/tmp/mongodump.tar.gz --rm -ti registry.abzt.de/edx-backup edxbackup mongo_restore --mongo-host mongodb --input-file /tmp/mongodump.tar.gz
+
+TODO: more examples and details

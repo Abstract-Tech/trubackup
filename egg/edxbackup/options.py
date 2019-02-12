@@ -39,16 +39,6 @@ mongo_port = option(
     default="27017",
     help="IP port of the MongoDB server",
 )
-mongo_user = option(
-    "--mongo-user", envvar="MONGO_USER", required=True, help="MongoDB server user"
-)
-mongo_password = option(
-    "--mongo-password",
-    envvar="MONGO_PASSWORD",
-    required=True,
-    help="MongoDB server password",
-)
-
 
 input_file = option(
     "--input-file", type=click.Path(exists=True, readable=True), required=True

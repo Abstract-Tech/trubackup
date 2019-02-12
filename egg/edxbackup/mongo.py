@@ -29,14 +29,12 @@ def dump(mongo_host, mongo_port, database, output_dir):
 @click.command(name="mongo_restore")
 @options.mongo_host
 @options.mongo_port
-@options.mongo_user
-@options.mongo_password
 @options.input_file
-def restore(mongo_host, mongo_port, mongo_user, mongo_password, input_file):
+def restore(mongo_host, mongo_port, input_file):
     """Restore MongoDB from dump"""
     print("Restoring MongoDB")
 
-    cmd = f"mongorestore -h {mongo_host}:{mongo_port} -u {mongo_user} -p {mongo_password} --gzip --archive {input_file}"
+    cmd = f"mongorestore -h {mongo_host}:{mongo_port} --gzip --archive {input_file}"
 
     print("Running:")
     print(cmd)
