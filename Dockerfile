@@ -6,4 +6,4 @@ RUN pip install -U pip
 COPY egg /egg
 RUN pip install /egg
 
-CMD /usr/local/bin/edx-backup
+CMD /usr/local/bin/edxbackup
