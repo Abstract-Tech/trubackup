@@ -3,62 +3,41 @@ import datetime
 
 import click
 
-from edxbackup.utils import ensure_directory_exists
+from edxbackup import options
 
 
 @click.command(name='mongo_dump')
-@click.option(
-    '--database',
-    help="Dump a single database",
-    required=False
-)
-def dump(
-    database=None
-):
+@options.mongo_host
+@options.mongo_port
+@options.database
+@options.output_dir
+def dump(mongo_host, mongo_port, database, output_dir):
     """Dumps MongoDB"""
-    print("Dumping MongoDB")
-
-    ensure_directory_exists(settings.MONGO_OUTPUT_DIR)
-    output_file = "{now}-dump.sql.gz".format(
-        now=datetime.datetime.now().strftime(
-            settings.DUMP_FILENAME_DATE_FORMAT
-        )
-    )
-
-    cmd = "mongodump -h {host}:{port} -d {database} --gzip --archive={output_path}".format(
-        host=settings.MONGO_HOST,
-        port=settings.MONGO_PORT,
-        database=settings.MONGO_DATABASE,
-        output_path=os.path.join(
-            settings.MONGO_OUTPUT_DIR, output_file
-        )
-    ).split()
+    print('Dumping MongoDB')
+    now = datetime.datetime.now().strftime(options.DUMP_FILENAME_DATE_FORMAT)
+    output_filename = f"{now}-dump.sql.gz"
+    output_path = os.path.join(output_dir, output_filename)
+    cmd = f"mongodump -h {mongo_host}:{mongo_port} -d {database} --gzip --archive={output_path}"
 
     if database:
-        cmd.extend(["-d", database])
-
-    cmd = " ".join(cmd)
+        cmd += f' -d {database}'
     print("Running:")
     print(cmd)
     os.system(cmd)
 
 
 @click.command(name='mongo_restore')
-def restore():
+@options.mongo_host
+@options.mongo_port
+@options.mongo_user
+@options.mongo_password
+@options.input_file
+def restore(mongo_host, mongo_port, mongo_user, mongo_password, input_file):
     """Restore MongoDB from dump"""
     print("Restoring MongoDB")
 
-    cmd = "mongorestore -h {host}:{port} -u {user} -p {password} --gzip --archive {input_path}".format(
-        host=settings.MONGO_HOST,
-        port=settings.MONGO_PORT,
-        user=settings.MONGO_USER,
-        password=settings.MONGO_PASSWORD,
-        output_path=os.path.join(
-            settings.MONGO_OUTPUT_DIR, input_file
-        )
-    ).split()
+    cmd = f"mongorestore -h {mongo_host}:{mongo_port} -u {mongo_user} -p {mongo_password} --gzip --archive {input_file}"
 
-    cmd = " ".join(cmd)
     print("Running:")
     print(cmd)
     os.system(cmd)

@@ -2,67 +2,45 @@ import os
 import datetime
 
 import click
+from edxbackup import options
 
 
 @click.command(name='mysql_restore')
-@click.argument('input_file')
-def restore(input_file):
+@options.mysql_host
+@options.mysql_port
+@options.mysql_user
+@options.mysql_password
+@options.input_file
+def restore(mysql_host, mysql_port, mysql_user, mysql_password, input_file):
     """Restore MySQL from dump"""
     print("Restoring MySQL")
 
-    cmd = "gunzip < {input_file} | mysql -h {host} -P {port} -u {user} -p{password}".format(
-        host=settings.MYSQL_HOST,
-        port=settings.MYSQL_PORT,
-        user=settings.MYSQL_USER,
-        password=settings.MYSQL_PASSWORD,
-        input_file=input_file
-    ).split()
-
-    if not settings.MYSQL_SOCKET:
-        cmd.extend(["--protocol", "tcp"])
-
-    cmd = " ".join(cmd)
+    cmd = f"gunzip < {input_file} | mysql -h {mysql_host} -P {mysql_port} -u {mysql_user} -p{mysql_password} --protocol tcp"
     print("Running:")
     print(cmd)
     os.system(cmd)
 
 
 @click.command(name='mysql_dump')
-@click.option('--database', help="Dump a single database", required=False)
-def dump(database=None):
+@options.mysql_host
+@options.mysql_port
+@options.mysql_user
+@options.mysql_password
+@options.database
+@options.output_dir
+def dump(mysql_host, mysql_port, mysql_user, mysql_password, database, output_dir):
     """Dumps MySQL"""
     print("Dumping MySQL")
-    cmd = "mysqldump -h {host} -u {user} -p{password} -P {port}".format(
-        host=settings.MYSQL_HOST,
-        port=settings.MYSQL_PORT,
-        user=settings.MYSQL_USER,
-        password=settings.MYSQL_PASSWORD
-    ).split()
+    cmd = f"mysqldump --protocol tcp -h {mysql_host} -u {mysql_user} -p{mysql_password} -P {mysql_port}"
 
     if not database:
-        cmd.append("--all-databases")
+        cmd += " --all-databases"
     else:
-        cmd.extend(["-d", database])
+        cmd += f" -d {database}"
+    now=datetime.datetime.now().strftime(options.DUMP_FILENAME_DATE_FORMAT)
+    output_path = os.path.join(output_dir, f"{now}-dump.sql.gz")
+    cmd += f'|gzip -6 - >{output_path}'
 
-    if not settings.MYSQL_SOCKET:
-        cmd.extend(["--protocol", "tcp"])
-
-    ensure_directory_exists(settings.MYSQL_OUTPUT_DIR)
-    output_file = "{now}-dump.sql.gz".format(
-        now=datetime.datetime.now().strftime(
-            settings.DUMP_FILENAME_DATE_FORMAT
-        )
-    )
-    output_path = os.path.join(
-        settings.MYSQL_OUTPUT_DIR,
-        output_file
-    )
-
-    cmd.extend([
-        "|", "gzip --best > {}".format(output_path)
-    ])
-
-    cmd = " ".join(cmd)
     print("Running:")
     print(cmd)
     os.system(cmd)
