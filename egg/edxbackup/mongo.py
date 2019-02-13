@@ -13,6 +13,7 @@ from edxbackup import options
 @options.output_dir
 def dump(mongo_host, mongo_port, database, output_dir):
     """Dumps MongoDB"""
+    # TODO: use a different strategy according to the mongodb version
     print("Dumping MongoDB")
     now = datetime.datetime.now().strftime(options.DUMP_FILENAME_DATE_FORMAT)
     output_filename = f"{now}-dump.sql.gz"
@@ -32,10 +33,16 @@ def dump(mongo_host, mongo_port, database, output_dir):
 @options.input_file
 def restore(mongo_host, mongo_port, input_file):
     """Restore MongoDB from dump"""
-    print("Restoring MongoDB")
+    echo_g("Restoring MongoDB")
+    # TODO: use a different strategy according to the mongodb version
 
-    cmd = f"mongorestore -h {mongo_host}:{mongo_port} --gzip --archive {input_file}"
+    # Extract tarball to /tmp
+    echo_g('Extracting tarball')
+    os.system(f'tar xf {input_file} -C /tmp')
+    # XXX assuming the archive file we're passed contains a single mongodump directory
+    echo_g('Invoking Mongorestore')
+    os.system(f"mongorestore -v -h {mongo_host}:{mongo_port} /tmp/mongodump")
 
-    print("Running:")
-    print(cmd)
-    os.system(cmd)
+def echo_g(text):
+    """Shortcut to make text green"""
+    click.echo(click.style(text, fg='green'))
