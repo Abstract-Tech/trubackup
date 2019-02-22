@@ -4,6 +4,6 @@ jobs:
     machine: true
     steps:
       - checkout
-      - run: ./.circleci/dump_dbs.sh
       - run: pwd
       - run: make build-image
+      - run: make test

@@ -6,4 +6,5 @@ build-image : Dockerfile $(EGG)
 push-image :
 	docker push registry.abzt.de/edx-backup
 
-test :
+test : build-image
+	tests/dump_dbs.sh
