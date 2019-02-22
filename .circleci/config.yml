@@ -1,0 +1,9 @@
+version: 2
+jobs:
+  build:
+    machine: true
+    steps:
+      - checkout
+      - run: ./.circleci/dump_dbs.sh
+      - run: pwd
+      - run: make build-image
