@@ -6,7 +6,9 @@ RUN apk add mariadb-client
 
 RUN pip install -U pip
 COPY egg /egg
-RUN pip install /egg
+
+RUN pip install -U pip && \
+    pip install /egg
 # Uncomment to debug
 # RUN pip install pdbpp
 
