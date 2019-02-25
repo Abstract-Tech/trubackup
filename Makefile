@@ -6,6 +6,7 @@ DOCKER_IMAGE := $(shell sed -e 's/:.*//' build-image || echo '$(DEFAULT_DOCKER_I
 DOCKER_IMAGE_LOCAL_TAG := $(shell git describe --always)
 SHELL:=/bin/bash
 SHELLOPTS:=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
+ndef = $(if $(value $(1)),,$(error $(1) not set))
 
 .ONESHELL:
 
@@ -30,7 +31,9 @@ push-image :
 .PHONY: test
 test : build-image $(DUMP_FILENAME)
 
-$(DUMP_FILENAME) : build-image tests/insert_mysql_test_data.sh
+$(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
+	$(call ndef,MYSQL_VERSION)
+	$(call ndef,MONGO_VERSION)
 	rm -rf $(DUMP_FILENAME)
 	function tearDown {
 		tests/stop_servers.sh
