@@ -8,7 +8,7 @@ RUN pip install -U pip
 COPY egg /egg
 
 RUN pip install -U pip && \
-    pip install /egg
+    pip install -e /egg
 # Uncomment to debug
 # RUN pip install pdbpp
 
