@@ -15,13 +15,19 @@ Usage
 
 Parameters can be passed either as environment variables or on the command line.
 
-Mongodb restore example:
+Dump example:
 
-    docker run --network tutor_local_default -v $(pwd)/tum-dump/mongodump.tar.gz:/tmp/mongodump.tar.gz --rm -ti silviot/edx-backup edxbackup mongo_restore --mongo-host mongodb --input-file /tmp/mongodump.tar.gz
+    docker run --network host -v /path/to_dump/destination:/tmp/mongodump --rm -ti \
+    silviot/edx-backup edxbackup edx_dump \
+    --edx-config /edx/app/edxapp/lms.auth.json \
+    --dump-location /tmp/mongodump
 
-Mysql restore example:
+Restore example:
 
-    docker run --network tutor_local_default -v $(pwd)/tum-dump/mysql_dump.sql.gz:/tmp/mysql_dump.sql.gz --rm -ti silviot/edx-backup edxbackup mysql_restore --mysql-host mysql --mysql-user root --mysql-password FOOBAR --input-file /tmp/mysql_dump.sql.gz
+    docker run --network host -v /path/to_dump/edxdump-2019-02-26T14:46:04.323836:/tmp/mongodump --rm -ti \
+    silviot/edx-backup edxbackup edx_restore \
+    --edx-config /edx/app/edxapp/lms.auth.json \
+    --dump-location /tmp/mongodump
 
 
 DISCLAIMER
