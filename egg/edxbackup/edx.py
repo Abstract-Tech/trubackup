@@ -87,6 +87,15 @@ def restore(dump_location, edx_config):
     if os.system(cmd) != 0:
         click.echo('Error restoring mongo')
 
+    click.echo('Restoring mysql')
+    options = mysql_options(info)
+    path = os.path.join(dump_location, 'mysql_dump.sql.gz')
+    cmd = f"zcat {path}|mysql  --protocol tcp {options}"
+    print(f"Running:\n{cmd}")
+    if os.system(cmd) != 0:
+        click.echo('Error dumping mysql')
+
+
 
 def mysql_options(info):
     """Return a string to be used with mysqldump/restore
