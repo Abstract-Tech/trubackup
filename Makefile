@@ -30,8 +30,6 @@ push-image :
 
 .PHONY: test
 test : build-image $(DUMP_FILENAME)
-# TODO the actual test
-
 
 .PHONY: pytest
 pytest :
@@ -47,5 +45,5 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	trap tearDown EXIT
 	tests/start_servers.sh
 	tests/populate_dbs.sh
-	tests/run_backup.sh $(DUMP_FILENAME)
 	mkdir -p $(DUMP_FILENAME)
+	tests/run_backup.sh "$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
