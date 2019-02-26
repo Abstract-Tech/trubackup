@@ -2,7 +2,7 @@
 
 SOURCE=$1
 IMAGE=$2
-DIR=$(realpath $(dirname "$(readlink -f "$0")")/../egg)
+DIR=$(readlink -m $(dirname "$(readlink -f "$0")")/../egg)
 
 echo Restoring from ${SOURCE} using ${IMAGE}
 
