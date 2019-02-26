@@ -17,8 +17,17 @@ strategy:
       MONGO_VERSION: 3.2.16
 
 steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.6'
+      architecture: 'x64'
+  - script: |
+      python -m pip install --upgrade pip setuptools wheel
+      pip install pytest
+      ls -l
+      pwd
+      pip install ./egg
+      pytest egg
+    displayName: 'Run pytest'
   - bash: make build-image
   - bash: make test
-  - bash: pip3 install pytest
-  - bash: pip3 install egg
-  - bash: make pytest
