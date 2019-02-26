@@ -6,7 +6,8 @@ DIR=$(dirname "$(readlink -f "$0")")
 
 echo Dumping into ${DESTINATION} using ${IMAGE}
 
-docker run --network host --rm -ti \
+docker run --network host --rm \
+    -u $(id -u ${USER}):$(id -g ${USER}) \
     --mount type=bind,source=${DESTINATION},destination=/dumps \
     --mount type=bind,source=${DIR}/../egg,destination=/egg \
     ${IMAGE} \
