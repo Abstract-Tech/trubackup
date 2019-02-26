@@ -35,7 +35,7 @@
             "NAME": "edxapp",
             "OPTIONS": {},
             "PASSWORD": "secret",
-            "PORT": "3306",
+            "PORT": "3309",
             "USER": "edxapp001"
         },
         "read_replica": {
@@ -45,7 +45,7 @@
             "NAME": "edxapp",
             "OPTIONS": {},
             "PASSWORD": "secret",
-            "PORT": "3306",
+            "PORT": "3309",
             "USER": "edxapp001"
         },
         "student_module_history": {
@@ -55,7 +55,7 @@
             "NAME": "edxapp_csmh",
             "OPTIONS": {},
             "PASSWORD": "secret",
-            "PORT": "3306",
+            "PORT": "3309",
             "USER": "edxapp001"
         }
     },
