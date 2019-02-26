@@ -46,4 +46,4 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	tests/start_servers.sh
 	tests/populate_dbs.sh
 	mkdir -p $(DUMP_FILENAME)
-	tests/run_backup.sh "$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
+	tests/run_backup.sh "$(CURRENT_DIR)/$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
