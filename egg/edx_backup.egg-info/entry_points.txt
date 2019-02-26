@@ -1,3 +1,0 @@
-[console_scripts]
-edxbackup = edxbackup.cli:main
-

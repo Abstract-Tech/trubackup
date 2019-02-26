@@ -1,6 +1,9 @@
 dumps
 __pycache__
-
 *.pyc
+*.egg-info
 .vscode
 build-image
+
+.direnv
+
