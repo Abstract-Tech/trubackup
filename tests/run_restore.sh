@@ -1,13 +1,13 @@
 #!/bin/bash
 
-DESTINATION=$1
+SOURCE=$1
 IMAGE=$2
 
-echo Dumping into ${DESTINATION} using ${IMAGE}
+echo Restoring from ${SOURCE} using ${IMAGE}
 
 docker run --network host --rm -ti \
-    --mount type=bind,source=${DESTINATION},destination=/dumps \
+    --mount type=bind,source=${SOURCE},destination=/dumps \
     ${IMAGE} \
-        edxbackup edx_dump \
+        edxbackup edx_restore \
             --edx-config /egg/edxbackup/tests/lms.auth.json\
             --dump-location /dumps

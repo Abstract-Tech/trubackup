@@ -6,6 +6,8 @@ DOCKER_IMAGE := $(shell sed -e 's/:.*//' build-image || echo '$(DEFAULT_DOCKER_I
 DOCKER_IMAGE_LOCAL_TAG := $(shell git describe --always)
 SHELL:=/bin/bash
 SHELLOPTS:=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
+DUMP_SOURCE := $(shell find $(CURRENT_DIR)/$(DUMP_FILENAME) -maxdepth 1 -mindepth 1 -type d)
+
 ndef = $(if $(value $(1)),,$(error $(1) not set))
 
 .ONESHELL:
@@ -47,3 +49,13 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	tests/populate_dbs.sh
 	mkdir -p $(DUMP_FILENAME)
 	tests/run_backup.sh "$(CURRENT_DIR)/$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
+
+test-restore : build-image
+	$(call ndef,MYSQL_VERSION)
+	$(call ndef,MONGO_VERSION)
+	function tearDown {
+		tests/stop_servers.sh
+	}
+	trap tearDown EXIT
+	tests/start_servers.sh
+	tests/run_restore.sh "$(DUMP_SOURCE)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
