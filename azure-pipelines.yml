@@ -7,12 +7,7 @@ pool:
 resources:
 - repo: self
 
-
-jobs:
-
-- job: CreateImage
-  displayName: Create docker image
-  steps:
-    - bash: make build-image
-    - bash: make test
-    - bash: make pytest
+steps:
+  - bash: make build-image
+  - bash: make test
+  - bash: make pytest
