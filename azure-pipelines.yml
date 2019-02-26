@@ -27,5 +27,8 @@ steps:
       pytest egg
     displayName: 'Run pytest'
   - bash: make build-image
-  - bash: make test
+    displayName: 'Build docker image'
+  - bash: make test-dump
+    displayName: 'Test dump'
   - bash: make test-restore
+    displayName: 'Test restore'

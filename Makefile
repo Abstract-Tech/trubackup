@@ -30,8 +30,8 @@ run-image :
 push-image :
 	docker push $(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)
 
-.PHONY: test
-test : build-image $(DUMP_FILENAME)
+.PHONY: test-dump
+test-dump : build-image $(DUMP_FILENAME)
 
 .PHONY: pytest
 pytest :
@@ -50,6 +50,7 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	mkdir -p $(DUMP_FILENAME)
 	tests/run_backup.sh "$(CURRENT_DIR)/$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
 
+.PHONY: test-restore
 test-restore : build-image
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
