@@ -31,6 +31,10 @@ push-image :
 .PHONY: test
 test : build-image $(DUMP_FILENAME)
 
+.PHONY: pytest
+pytest :
+	pytest egg
+
 $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
@@ -41,5 +45,5 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	trap tearDown EXIT
 	tests/start_servers.sh
 	tests/populate_dbs.sh
-	tests/run_backup.sh
+	tests/run_backup.sh $(DUMP_FILENAME)
 	mkdir -p $(DUMP_FILENAME)
