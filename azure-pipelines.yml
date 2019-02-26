@@ -10,4 +10,6 @@ resources:
 steps:
   - bash: make build-image
   - bash: make test
+  - bash: pip install pytest
+  - bash: pip install egg
   - bash: make pytest
