@@ -19,6 +19,6 @@ strategy:
 steps:
   - bash: make build-image
   - bash: make test
-  - bash: pip install pytest
-  - bash: pip install egg
+  - bash: pip3 install pytest
+  - bash: pip3 install egg
   - bash: make pytest
