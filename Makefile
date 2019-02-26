@@ -16,7 +16,7 @@ build-image : Dockerfile $(EGG_FILES)
 
 # If the first argument is "run-image"...
 ifeq (run-image,$(firstword $(MAKECMDGOALS)))
-  # use the rest as arguments for "run"
+  # use the rest as arguments for "run-images"
   RUN_ARGS := $(wordlist 2,$(words $(MAKECMDGOALS)),$(MAKECMDGOALS))
   # ...and turn them into do-nothing targets
   $(eval $(RUN_ARGS):;@:)
@@ -30,6 +30,8 @@ push-image :
 
 .PHONY: test
 test : build-image $(DUMP_FILENAME)
+# TODO the actual test
+
 
 .PHONY: pytest
 pytest :
