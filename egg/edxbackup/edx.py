@@ -46,21 +46,17 @@ def dump(dump_location, edx_config):
         f"mongodump -h {mongo_host}:{mongo_port} "
         f"--gzip --archive={output_path}")
     print(f"Running:\n{cmd}")
-    os.system(cmd)
+    if os.system(cmd) != 0:
+        click.echo('Error dumping mongo')
 
     click.echo('Dumping mysql')
-    mysql_host = info['mysql'][0]['host']
-    mysql_port = info['mysql'][0]['port']
-    mysql_port = info['mysql'][0]['port']
-    mysql_user = info['mysql'][0]['user']
-    mysql_password = info['mysql'][0]['password']
+    options = mysql_options(info)
     output_path = os.path.join(output_dir, 'mysql_dump.sql.gz')
-    cmd = (f"mysqldump --all-databases --protocol tcp "
-        f"-h {mysql_host} -u {mysql_user} "
-        f"-p{mysql_password} -P {mysql_port} "
+    cmd = (f"mysqldump --all-databases --protocol tcp {options}"
         f"|gzip -6 - >{output_path}")
     print(f"Running:\n{cmd}")
-    os.system(cmd)
+    if os.system(cmd) != 0:
+        click.echo('Error dumping mysql')
 
 
 @dump_location(
@@ -70,7 +66,39 @@ def dump(dump_location, edx_config):
 @click.command(name="edx_restore")
 def restore(dump_location, edx_config):
     """Restore Mysql and MongoDB databases relative to the given edX instance"""
+    expected_content = ['mongodb_dump.gz', 'mysql_dump.sql.gz']
+    actual_content = sorted(os.listdir(dump_location))
+    if actual_content != expected_content:
+        click.echo(f'The directory {dump_location} does not contain '
+            f'the expected files ({expected_content})\n'
+            f'These files were found instead:\n{actual_content}')
+        sys.exit(1)
     info = extract_info(json.load(click.open_file(edx_config)))
+    click.echo(f'Restoring dump from {dump_location}')
+
+    click.echo('Restoring mongodb')
+    mongo_path = os.path.join(dump_location, 'mongodb_dump.gz')
+    mongo_host = info['mongo'][0]['host']
+    mongo_port = info['mongo'][0]['port']
+    cmd = (
+        f"mongorestore -h {mongo_host}:{mongo_port} "
+        f"--gzip --archive={mongo_path}")
+    print(f"Running:\n{cmd}")
+    if os.system(cmd) != 0:
+        click.echo('Error restoring mongo')
+
+
+def mysql_options(info):
+    """Return a string to be used with mysqldump/restore
+    given an `info` dict as returned by `extract_info`.
+    """
+    mysql_host = info['mysql'][0]['host']
+    mysql_port = info['mysql'][0]['port']
+    mysql_port = info['mysql'][0]['port']
+    mysql_user = info['mysql'][0]['user']
+    mysql_password = info['mysql'][0]['password']
+    return (f"-h {mysql_host} -u {mysql_user} "
+        f"-p{mysql_password} -P {mysql_port} ")
 
 
 def extract_info(json_content):

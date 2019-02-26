@@ -29,3 +29,4 @@ steps:
     displayName: 'Run pytest'
   - bash: make build-image
   - bash: make test
+  - bash: make test-restore

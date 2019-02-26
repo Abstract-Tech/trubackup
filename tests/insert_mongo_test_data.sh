@@ -13,4 +13,4 @@ db.inventory.insert({ item: "journal", qty: 25, tags: ["blank", "red"], size: { 
 db.inventory.insert({ item: "mat", qty: 85, tags: ["gray"], size: { h: 27.9, w: 35.5, uom: "cm" } });
 db.inventory.insert({ item: "mousepad", qty: 25, tags: ["gel", "blue"], size: { h: 19, w: 22.85, uom: "cm" } });
 '
-mongo ${MONGO_OPTS} --eval "${SCRIPT}"
+mongo test ${MONGO_OPTS} --eval "${SCRIPT}"
