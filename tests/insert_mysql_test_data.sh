@@ -8,3 +8,10 @@ mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "${STATEMENT}" test
 STATEMENT="INSERT INTO pet
        VALUES ('Puffball','Diane','hamster','f','1999-03-30',NULL);"
 mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "${STATEMENT}" test
+
+STATEMENT="
+CREATE USER 'edxapp001' IDENTIFIED BY 'secret';
+GRANT ALL PRIVILEGES ON test.* To 'edxapp001';
+FLUSH PRIVILEGES;
+"
+mysql -u root -p"${MYSQL_ROOT_PASSWORD}" -e "${STATEMENT}" test

@@ -22,7 +22,7 @@ ifeq (run-image,$(firstword $(MAKECMDGOALS)))
   $(eval $(RUN_ARGS):;@:)
 endif
 run-image :
-	docker run --rm -ti -v $(CURRENT_DIR)/dumps:/dumps -v $(CURRENT_DIR)/egg:/egg $(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG) $(RUN_ARGS)
+	docker run --network host --rm -ti -v $(CURRENT_DIR)/dumps:/dumps -v $(CURRENT_DIR)/egg:/egg $(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG) $(RUN_ARGS)
 
 .PHONY: push-image
 push-image :
