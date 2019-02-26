@@ -14,6 +14,7 @@ strategy:
       MONGO_VERSION: 3.2.16
 
 steps:
+  - bash: service mysql stop
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.6'
