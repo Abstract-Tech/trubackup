@@ -7,6 +7,11 @@ pool:
 resources:
 - repo: self
 
+matrix:
+  hawthorn:
+    MYSQL_VERSION: 5.6.36
+    MONGO_VERSION: 3.2.16
+
 steps:
   - bash: make build-image
   - bash: make test
