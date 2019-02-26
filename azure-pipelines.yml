@@ -14,6 +14,8 @@ strategy:
       MONGO_VERSION: 3.2.16
 
 steps:
+  - bash: netstat -lpnt
+  - bash: ps fax|grep mysql
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.6'
