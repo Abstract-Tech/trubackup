@@ -52,8 +52,6 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 
 .PHONY: test-restore
 test-restore : build-image
-	echo $(DOCKER_IMAGE_LOCAL_TAG)
-	exit 0
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
 	function tearDown {
