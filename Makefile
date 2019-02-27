@@ -1,12 +1,12 @@
-EGG_FILES := $(wildcard egg/**/*)
-CURRENT_DIR := $(shell pwd)
-DUMP_FILENAME := dumps/mysql-$(MYSQL_VERSION)_mongo-$(MONGO_VERSION)
-DEFAULT_DOCKER_IMAGE := silviot/edxbackup
-DOCKER_IMAGE := $(shell sed -e 's/:.*//' build-image || echo '$(DEFAULT_DOCKER_IMAGE)')
-DOCKER_IMAGE_LOCAL_TAG := $(shell git describe --always)
-SHELL:=/bin/bash
-SHELLOPTS:=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
-DUMP_SOURCE := $(shell find $(CURRENT_DIR)/$(DUMP_FILENAME) -maxdepth 1 -mindepth 1 -type d)
+SHELL=/bin/bash
+EGG_FILES = $(wildcard egg/**/*)
+CURRENT_DIR = $(shell pwd)
+DUMP_FILENAME = dumps/mysql-$(MYSQL_VERSION)_mongo-$(MONGO_VERSION)
+DEFAULT_DOCKER_IMAGE = silviot/edxbackup
+DOCKER_IMAGE = $(shell sed -e 's/:.*//' build-image 2> /dev/null || echo '$(DEFAULT_DOCKER_IMAGE)')
+DOCKER_IMAGE_LOCAL_TAG = ${shell md5sum <(md5sum $(CURRENT_DIR)/Dockerfile $(find $(CURRENT_DIR)/egg -type f))| cut -c -8}
+SHELLOPTS=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
+DUMP_SOURCE = $(shell find $(CURRENT_DIR)/$(DUMP_FILENAME) -maxdepth 1 -mindepth 1 -type d)
 
 ndef = $(if $(value $(1)),,$(error $(1) not set))
 
@@ -52,6 +52,8 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 
 .PHONY: test-restore
 test-restore : build-image
+	echo $(DOCKER_IMAGE_LOCAL_TAG)
+	exit 0
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
 	function tearDown {
