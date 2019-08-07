@@ -75,22 +75,24 @@ def restore(dump_location, dbconfig_path):
 
     click.echo('Restoring mongodb')
     mongo_path = os.path.join(dump_location, 'mongodb_dump.gz')
-    mongo_host = info['mongo'][0]['host']
-    mongo_port = info['mongo'][0]['port']
+    mongo_host = info['mongo']['host']
+    mongo_port = info['mongo']['port']
     cmd = (
         f"mongorestore -h {mongo_host}:{mongo_port} "
         f"--gzip --archive={mongo_path}")
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo('Error restoring mongo')
+        click.get_current_context().fail()
 
     click.echo('Restoring mysql')
-    options = mysql_options(info)
-    path = os.path.join(dump_location, 'mysql_dump.sql.gz')
-    cmd = f"zcat {path}|mysql  --protocol tcp {options}"
+    options = mysql_options(info["mysql"])
+    path = os.path.join(dump_location, 'mysql_dump')
+    cmd = f"myloader {options} --overwrite-tables --directory {path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
-        click.echo('Error dumping mysql')
+        click.echo('Error restoring mysql')
+        click.get_current_context().fail()
 
 
 def mysql_options(mysql_info):
@@ -100,5 +102,5 @@ def mysql_options(mysql_info):
     result = (f"--host {mysql_info['host']} --user {mysql_info['user']} "
         f"--password {mysql_info['password']} --port {mysql_info['port']} ")
     if "dbname" in mysql_info:
-        result += f"-B {mysql_info['dbname']}"
+        result += f" -B {mysql_info['dbname']} "
     return result
