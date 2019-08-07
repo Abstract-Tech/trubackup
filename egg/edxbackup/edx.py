@@ -48,13 +48,12 @@ def dump(dump_location, dbconfig_path):
         click.echo('Error dumping mongo')
 
     click.echo('Dumping mysql')
-    options = mysql_options(info)
-    output_path = os.path.join(output_dir, 'mysql_dump.sql.gz')
-    cmd = (f"mysqldump --all-databases --protocol tcp {options}"
-        f"|gzip -6 - >{output_path}")
-    print(f"Running:\n{cmd}")
-    if os.system(cmd) != 0:
-        click.echo('Error dumping mysql')
+    output_path = os.path.join(output_dir, 'mysql_dump')
+    for mysql_info in info["mysql"]:
+        cmd = (f"mydumper {mysql_options(mysql_info)} -o {output_path}")
+        print(f"Running:\n{cmd}")
+        if os.system(cmd) != 0:
+            click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
 
 
 @dump_location_option(
@@ -64,7 +63,7 @@ def dump(dump_location, dbconfig_path):
 @click.command(name="edx_restore")
 def restore(dump_location, dbconfig_path):
     """Restore Mysql and MongoDB databases relative to the given edX instance"""
-    expected_content = ['mongodb_dump.gz', 'mysql_dump.sql.gz']
+    expected_content = ['mongodb_dump.gz', 'mysql_dump']
     actual_content = sorted(os.listdir(dump_location))
     if actual_content != expected_content:
         click.echo(f'The directory {dump_location} does not contain '
@@ -94,14 +93,12 @@ def restore(dump_location, dbconfig_path):
         click.echo('Error dumping mysql')
 
 
-def mysql_options(info):
-    """Return a string to be used with mysqldump/restore
-    given an `info` dict as returned by `extract_info`.
+def mysql_options(mysql_info):
+    """Return a string to be used with mydumper/myloader
+    given an mysql `info` dict.
     """
-    mysql_host = info['mysql'][0]['host']
-    mysql_port = info['mysql'][0]['port']
-    mysql_port = info['mysql'][0]['port']
-    mysql_user = info['mysql'][0]['user']
-    mysql_password = info['mysql'][0]['password']
-    return (f"-h {mysql_host} -u {mysql_user} "
-        f"-p{mysql_password} -P {mysql_port} ")
+    result = (f"--host {mysql_info['host']} --user {mysql_info['user']} "
+        f"--password {mysql_info['password']} --port {mysql_info['port']} ")
+    if "dbname" in mysql_info:
+        result += f"-B {mysql_info['dbname']}"
+    return result

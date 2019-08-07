@@ -1,9 +1,9 @@
 {
     "mysql": [{
-        "dbname": "edx",
-        "host": "localhost",
-        "user": "edxapp001",
-        "password": "secret",
+        "dbname": "test",
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "foobar",
         "port": "3309"
     }],
     "mongo": [{
