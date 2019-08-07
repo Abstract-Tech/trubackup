@@ -10,7 +10,8 @@ set -x
 docker run --network host --rm \
     -u $(id -u ${USER}):$(id -g ${USER}) \
     --mount type=bind,source=${DESTINATION},destination=/dumps \
+    --mount type=bind,source=${DIR}/dump_conf.json,destination=/dump_conf.json \
     ${IMAGE} \
         edxbackup edx_dump \
-            --edx-config /egg/edxbackup/tests/lms.auth.json\
+            --dbconfig-path /dump_conf.json \
             --dump-location /dumps

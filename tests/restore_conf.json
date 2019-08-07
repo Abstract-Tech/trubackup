@@ -1,0 +1,16 @@
+{
+    "mysql": [{
+        "dbname": "edx",
+        "host": "localhost",
+        "user": "root",
+        "password": "foobar",
+        "port": "3309"
+    }],
+    "mongo": [{
+        "dbname": "edxapp",
+        "host": "localhost",
+        "user": "edxapp",
+        "password": "foobar",
+        "port": "27017"
+    }]
+}
