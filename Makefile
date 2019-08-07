@@ -60,7 +60,7 @@ test-restore : build-image
 	trap tearDown EXIT
 	tests/start_servers.sh
 	tests/run_restore.sh "$(DUMP_SOURCE)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
-	COUNT=$$(docker exec mongo mongo test --eval 'db.inventory.count()' |tail -n1)
+	COUNT=$$(docker exec edxbackup_test_mongo mongo test --eval 'db.inventory.count()' |tail -n1)
 	if [ "$${COUNT}" != "3" ]; then
 		echo Wrong number of records in mongodb: $${COUNT}
 	fi
