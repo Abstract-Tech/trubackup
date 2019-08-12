@@ -13,20 +13,31 @@ RUN cd /opt/mydumper-src/ && \
     cmake . && \
     make
 
-
+# Mention the mongo image so that we can copy its binaries
 FROM mongo:3.2.16 as mongo
 
-FROM python:3.6-alpine3.10
-
-RUN apk add mariadb-client glib zlib pcre libressl mariadb-connector-c
-
-RUN pip install -U pip
+# Compile our egg dependencies (swift/keystone)
+FROM python:3.6-alpine3.10 as dev
+RUN apk add alpine-sdk linux-headers
 COPY egg /egg
 
-RUN pip install -U pip && \
-    pip install -e /egg
+RUN pip install --no-cache-dir -U pip && \
+    pip install --no-cache-dir -e /egg && \
+    pip --no-cache-dir wheel --wheel-dir=/wheelhouse /egg && \
+    rm /wheelhouse/*-none-*
+
+FROM python:3.6-alpine
+
+RUN apk add glib zlib pcre libressl mariadb-connector-c
+
+RUN pip install --no-cache-dir -U pip
+COPY egg /egg
+COPY --from=dev /wheelhouse /wheelhouse
+
+RUN pip install --no-cache-dir -U pip && \
+    pip install --no-cache-dir -e /egg --find-links /wheelhouse
 # Uncomment to debug
-# RUN pip install pdbpp
+# RUN pip install --no-cache-dir pdbpp
 
 CMD /usr/local/bin/edxbackup
 
