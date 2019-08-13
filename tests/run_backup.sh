@@ -13,6 +13,6 @@ docker run --network host --rm \
     -u $(id -u ${USER}):$(id -g ${USER}) \
     --mount type=bind,source=${DESTINATION},destination=/destination \
     --mount type=bind,source=${DIR}/dump_conf.json,destination=/etc/edxbackup.json \
-    --mount type=bind,source=${EGG_DIR},destination=/egg \
+    `#--mount type=bind,source=${EGG_DIR},destination=/egg `\
     ${IMAGE} \
         edxbackup edx_dump
