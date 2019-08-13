@@ -15,12 +15,12 @@ strategy:
 
 steps:
   - script: |
-      nohup docker pull alpine:3.10
-      nohup docker pull python:3.7-alpine3.10
-      nohup docker pull mongo:3.2.16
-      nohup docker pull mysql:${MYSQL_VERSION}
-      nohup docker pull mongo:${MONGO_VERSION}
-      nohup docker pull jeantil/openstack-keystone-swift:pike
+      nohup docker pull alpine:3.10 &
+      nohup docker pull python:3.7-alpine3.10 &
+      nohup docker pull mongo:3.2.16 &
+      nohup docker pull mysql:${MYSQL_VERSION} &
+      nohup docker pull mongo:${MONGO_VERSION} &
+      nohup docker pull jeantil/openstack-keystone-swift:pike &
     displayName: 'Download docker images in the background'
 
 
