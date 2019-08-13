@@ -1,5 +1,6 @@
 import os
 import datetime
+from glob import iglob
 import json
 import sys
 
@@ -53,6 +54,45 @@ def dump(dump_location, dbconfig_path):
         print(f"Running:\n{cmd}")
         if os.system(cmd) != 0:
             click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
+
+    if "swift" in info:
+        swift_info = info["swift"]
+        if "container" not in swift_info:
+            click.echo("No container specified. Aborting")
+            click.get_current_context().fail()
+        container = swift_info['container']
+        print(f"Uploading via SWIFT to container {container}")
+        os.environ.update(swift_info["env"])
+        # Note that swiftclient builds its options at import time.
+        # For this reason we import it here, after setting os.environ
+        # We might replace this with a call to
+        # swiftclient.service.reload()
+        # after setting the environment
+        from swiftclient.service import SwiftError
+        from swiftclient.service import SwiftService
+        from swiftclient.service import SwiftUploadObject
+
+        to_upload = []
+        for filepath in iglob(f"{output_dir}/**", recursive=True):
+            if not os.path.isfile(filepath):
+                continue
+            to_upload.append(SwiftUploadObject(
+                filepath,
+                object_name=f"{'/'.join(filepath.split('/')[2:])}"
+            ))
+        with SwiftService() as swift:
+            try:
+                swift.stat(container=container)
+            except SwiftError:
+                # Create the container if it does not exist
+                swift.post(container)
+            # Consume the return value of swift.upload
+            result = tuple(swift.upload(container, to_upload))
+            problems = [el for el in result if not el["success"]]
+            if problems:
+                print("There were problems uploading the dump via swift")
+                print(problems)
+                sys.exit(-1)
 
 
 @dump_location_option(type=click.Path(exists=True, file_okay=False, dir_okay=True))

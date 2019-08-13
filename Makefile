@@ -31,7 +31,7 @@ push-image :
 	docker push $(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)
 
 .PHONY: test-dump
-test-dump : build-image $(DUMP_FILENAME)
+test-dump : $(DUMP_FILENAME)
 
 .PHONY: pytest
 pytest :
