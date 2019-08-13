@@ -18,12 +18,12 @@ FROM mongo:3.2.16 as mongo
 
 # Compile our egg dependencies (swift/keystone)
 FROM python:3.7-alpine3.10 as dev
-RUN apk add alpine-sdk linux-headers
+RUN apk add linux-headers python3-dev gcc musl-dev libffi-dev libressl-dev
 COPY egg /egg
 
 RUN pip install --no-cache-dir -U pip && \
-    pip install --no-cache-dir -e /egg && \
     pip --no-cache-dir wheel --wheel-dir=/wheelhouse /egg && \
+    `# Only keep binary wheels` \
     rm /wheelhouse/*-none-*
 
 FROM python:3.7-alpine3.10
