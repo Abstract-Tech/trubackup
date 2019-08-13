@@ -17,7 +17,7 @@ RUN cd /opt/mydumper-src/ && \
 FROM mongo:3.2.16 as mongo
 
 # Compile our egg dependencies (swift/keystone)
-FROM python:3.6-alpine3.10 as dev
+FROM python:3.7-alpine3.10 as dev
 RUN apk add alpine-sdk linux-headers
 COPY egg /egg
 
@@ -26,13 +26,11 @@ RUN pip install --no-cache-dir -U pip && \
     pip --no-cache-dir wheel --wheel-dir=/wheelhouse /egg && \
     rm /wheelhouse/*-none-*
 
-FROM python:3.6-alpine
-
-RUN apk add glib zlib pcre libressl mariadb-connector-c
-
-RUN pip install --no-cache-dir -U pip
-COPY egg /egg
+FROM python:3.7-alpine3.10
 COPY --from=dev /wheelhouse /wheelhouse
+COPY egg /egg
+
+RUN apk --no-cache add glib zlib pcre libressl mariadb-connector-c
 
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -e /egg --find-links /wheelhouse
