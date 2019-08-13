@@ -6,6 +6,8 @@ DIR=$(dirname "$(readlink -f "$0")")
 EGG_DIR=$(dirname "$DIR")/egg
 echo $EGG_DIR
 
+docker run --network host --rm --env-file "$DIR"/../tests/test.env $(cat build-image) swift delete test_backup || true
+
 echo Dumping into ${DESTINATION} using ${IMAGE}
 
 set -x
@@ -13,7 +15,7 @@ docker run --network host --rm \
     -u $(id -u ${USER}):$(id -g ${USER}) \
     --mount type=bind,source=${DESTINATION},destination=/destination \
     --mount type=bind,source=${DIR}/dump_conf.json,destination=/etc/edxbackup.json \
-    `#--mount type=bind,source=${EGG_DIR},destination=/egg `\
+    --mount type=bind,source=${EGG_DIR}/edxbackup/,destination=/egg/edxbackup/ \
     ${IMAGE} \
         edxbackup edx_dump
 

@@ -60,7 +60,7 @@ def dump(dump_location, dbconfig_path):
         if "container" not in swift_info:
             click.echo("No container specified. Aborting")
             click.get_current_context().fail()
-        container = swift_info['container']
+        container = swift_info["container"]
         print(f"Uploading via SWIFT to container {container}")
         os.environ.update(swift_info["env"])
         # Note that swiftclient builds its options at import time.
@@ -76,19 +76,16 @@ def dump(dump_location, dbconfig_path):
         for filepath in iglob(f"{output_dir}/**", recursive=True):
             if not os.path.isfile(filepath):
                 continue
-            to_upload.append(SwiftUploadObject(
-                filepath,
-                object_name=f"{'/'.join(filepath.split('/')[2:])}"
-            ))
+            to_upload.append(
+                SwiftUploadObject(
+                    filepath, object_name=f"{'/'.join(filepath.split('/')[2:])}"
+                )
+            )
         with SwiftService() as swift:
-            try:
-                swift.stat(container=container)
-            except SwiftError:
-                # Create the container if it does not exist
-                swift.post(container)
             # Consume the return value of swift.upload
-            result = tuple(swift.upload(container, to_upload))
-            problems = [el for el in result if not el["success"]]
+            problems = [
+                el for el in swift.upload(container, to_upload) if not el["success"]
+            ]
             if problems:
                 print("There were problems uploading the dump via swift")
                 print(problems)

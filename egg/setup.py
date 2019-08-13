@@ -16,9 +16,9 @@ setup(
     packages=["edxbackup"],
     install_requires=[
         "click",
+        "pyAesCrypt",
         "python-swiftclient",
         "python-keystoneclient",
-        "cryptography",
     ],
     entry_points={"console_scripts": ["edxbackup=edxbackup.cli:main"]},
 )
