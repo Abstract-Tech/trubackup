@@ -37,7 +37,7 @@ test-dump : build-image $(DUMP_FILENAME)
 pytest :
 	pytest egg
 
-$(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
+$(DUMP_FILENAME) : $(wildcard tests/insert*.sh)
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
 	rm -rf $(DUMP_FILENAME)
@@ -51,7 +51,7 @@ $(DUMP_FILENAME) : build-image $(wildcard tests/insert*.sh)
 	tests/run_backup.sh "$(CURRENT_DIR)/$(DUMP_FILENAME)" "$(DOCKER_IMAGE):$(DOCKER_IMAGE_LOCAL_TAG)"
 
 .PHONY: test-restore
-test-restore : build-image
+test-restore : $(DUMP_FILENAME)
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
 	function tearDown {

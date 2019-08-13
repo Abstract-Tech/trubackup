@@ -32,19 +32,22 @@ For mysql a user with FLUSH privileges is needed:
 ```
 
 Save the file and point edxdump to it:
+
     docker run \
         --network host \
         -v /path/to/dump/destination:/destination \
         -v /path/to/config/file.json:/etc/edxbackup.json \
-        --rm -ti \
+        --rm \
         silviot/edx-backup edxbackup edx_dump
 
 Restore example:
 
-    docker run --network host -v /path/to_dump/edxdump-2019-02-26T14:46:04.323836:/tmp/mongodump --rm -ti \
-    silviot/edx-backup edxbackup edx_restore \
-    --edx-config /edx/app/edxapp/lms.auth.json \
-    --dump-location /tmp/mongodump
+    docker run
+        --network host \
+        -v /path/to/dump/destination:/destination \
+        -v /path/to/config/file.json:/etc/edxbackup.json \
+        --rm \
+            silviot/edx-backup edxbackup edx_restore
 
 
 Building

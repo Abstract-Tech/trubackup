@@ -8,9 +8,7 @@ echo Restoring from ${SOURCE} using ${IMAGE}
 
 set -x
 docker run --network host --rm \
-    --mount type=bind,source=${SOURCE},destination=/dumps \
-    --mount type=bind,source=${DIR}/restore_conf.json,destination=/restore_conf.json \
+    --mount type=bind,source=${SOURCE},destination=/destination \
+    --mount type=bind,source=${DIR}/restore_conf.json,destination=/etc/edxbackup.json \
     ${IMAGE} \
-        edxbackup edx_restore \
-            --dbconfig-path /restore_conf.json \
-            --dump-location /dumps
+        edxbackup edx_restore
