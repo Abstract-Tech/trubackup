@@ -4,23 +4,40 @@ edX Backup
 Introduction
 ------------
 
-Simple utility scripts to dump and restore an Open edX instance.
-
-A docker image can be built with:
-
-    make build-image
+Dump mysql and mongodb databases. Uses mydumper for mysql and mongodump for mongodb.
 
 Usage
 -----
 
-Parameters can be passed either as environment variables or on the command line.
+Prepare a file with info about yout mysql and mongo databases.
+For mysql a user with FLUSH privileges is needed:
 
-Dump example:
+```json
+{
+    "mysql": [{
+        "dbname": "test",
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "foobar",
+        "port": "3309"
+    }],
+    "mongo": {
+        "dbname": "edxapp",
+        "host": "localhost",
+        "user": "edxapp",
+        "password": "secret",
+        "port": "27017"
+    }
+}
+```
 
-    docker run --network host -v /path/to_dump/destination:/tmp/mongodump --rm -ti \
-    silviot/edx-backup edxbackup edx_dump \
-    --edx-config /edx/app/edxapp/lms.auth.json \
-    --dump-location /tmp/mongodump
+Save the file and point edxdump to it:
+    docker run \
+        --network host \
+        -v /path/to/dump/destination:/destination \
+        -v /path/to/config/file.json:/etc/edxbackup.json \
+        --rm -ti \
+        silviot/edx-backup edxbackup edx_dump
 
 Restore example:
 
@@ -28,6 +45,14 @@ Restore example:
     silviot/edx-backup edxbackup edx_restore \
     --edx-config /edx/app/edxapp/lms.auth.json \
     --dump-location /tmp/mongodump
+
+
+Building
+--------
+
+A docker image can be built with:
+
+    make build-image
 
 
 DISCLAIMER

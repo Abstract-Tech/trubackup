@@ -10,7 +10,7 @@ import click
 dbconfig_path_option = click.option(
     "--dbconfig-path",
     envvar="DBCONFIG_PATH",
-    required=True,
+    default="/etc/edxbackup.json",
     help="Path to JSON file containing info about databases to dump",
 )
 
@@ -18,7 +18,7 @@ dbconfig_path_option = click.option(
 dump_location_option = partial(click.option,
     "--dump-location",
     envvar="DUMP_LOCATION",
-    required=True,
+    default="/destination",
     help="Path where the dump will be read or written to",
 )
 
@@ -38,8 +38,8 @@ def dump(dump_location, dbconfig_path):
 
     click.echo('Dumping mongodb')
     output_path = os.path.join(output_dir, 'mongodb_dump.gz')
-    mongo_host = info['mongo'][0]['host']
-    mongo_port = info['mongo'][0]['port']
+    mongo_host = info['mongo']['host']
+    mongo_port = info['mongo']['port']
     cmd = (
         f"mongodump -h {mongo_host}:{mongo_port} "
         f"--gzip --archive={output_path}")

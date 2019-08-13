@@ -6,11 +6,11 @@
         "password": "foobar",
         "port": "3309"
     }],
-    "mongo": [{
+    "mongo": {
         "dbname": "edxapp",
         "host": "localhost",
         "user": "edxapp",
         "password": "secret",
         "port": "27017"
-    }]
+    }
 }
