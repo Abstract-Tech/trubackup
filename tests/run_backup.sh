@@ -18,6 +18,6 @@ docker run --network host --rm \
         edxbackup edx_dump
 
 # Make a couple of assertions about the presence of the backup in swift
-OUT=$(docker run -ti --network host --rm --env-file tests/test.env $(cat build-image) swift list test_backup)
+OUT=$(docker run --network host --rm --env-file tests/test.env $(cat build-image) swift list test_backup)
 ([[ $OUT == *"test.pet-schema"* ]] && [[ $OUT == *"mongodb_dump.gz"* ]]) || (echo "$OUT"; false)
 
