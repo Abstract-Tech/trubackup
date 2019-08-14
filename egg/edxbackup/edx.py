@@ -4,29 +4,14 @@ from glob import iglob
 import json
 import sys
 
-from swiftclient.service import SwiftError
 from swiftclient.service import SwiftService
 from swiftclient.service import SwiftUploadObject
 import swiftclient.service
 from functools import partial
 import click
 
-
-dbconfig_path_option = click.option(
-    "--dbconfig-path",
-    envvar="DBCONFIG_PATH",
-    default="/etc/edxbackup.json",
-    help="Path to JSON file containing info about databases to dump",
-)
-
-
-dump_location_option = partial(
-    click.option,
-    "--dump-location",
-    envvar="DUMP_LOCATION",
-    default="/destination",
-    help="Path where the dump will be read or written to",
-)
+from edxbackup.options import dbconfig_path_option
+from edxbackup.options import dump_location_option
 
 
 @dump_location_option(

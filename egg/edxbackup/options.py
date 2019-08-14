@@ -1,53 +1,20 @@
-import click
 from functools import partial
 
-option = partial(click.option, show_envvar=True, show_default=True)
-DUMP_FILENAME_DATE_FORMAT = "%d-%m-%y_%H-%M-%S"
+import click
 
 
-mysql_host = option(
-    "--mysql-host",
-    envvar="MYSQL_HOST",
-    default="localhost",
-    help="IP Address of the MySQL server",
-)
-mysql_port = option(
-    "--mysql-port",
-    envvar="MYSQL_PORT",
-    default="3306",
-    help="IP port of the MySQL server",
-)
-mysql_user = option(
-    "--mysql-user", envvar="MYSQL_USER", required=True, help="MySQL server user"
-)
-mysql_password = option(
-    "--mysql-password",
-    envvar="MYSQL_PASSWORD",
-    required=True,
-    help="MySQL server password",
+dbconfig_path_option = click.option(
+    "--dbconfig-path",
+    envvar="DBCONFIG_PATH",
+    default="/etc/edxbackup.json",
+    help="Path to JSON file containing info about databases to dump",
 )
 
-mongo_host = option(
-    "--mongo-host",
-    envvar="MONGO_HOST",
-    default="localhost",
-    help="IP Address of the MongoDB server",
-)
-mongo_port = option(
-    "--mongo-port",
-    envvar="MONGO_PORT",
-    default="27017",
-    help="IP port of the MongoDB server",
-)
 
-input_file = option(
-    "--input-file", type=click.Path(exists=True, readable=True), required=True
+dump_location_option = partial(
+    click.option,
+    "--dump-location",
+    envvar="DUMP_LOCATION",
+    default="/destination",
+    help="Path where the dump will be read or written to",
 )
-output_dir = option(
-    "--output-dir",
-    envvar="OUTPUT_DIR",
-    type=click.Path(exists=True, writable=True),
-    required=True,
-)
-
-database = option("--database", help="Dump a single database")
