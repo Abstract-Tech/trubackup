@@ -53,8 +53,8 @@ def remove_old_remote_swift(dbconfig_path):
 def swift_load_retention_policy(info):
     container = info["swift"]["container"]
     with getSwiftService(info) as swift:
-        # res = next(swift.download(container, objects))
         return
+        res = next(swift.download(container, objects))
 
 
 def swift_create_default_retention_policy(info):
