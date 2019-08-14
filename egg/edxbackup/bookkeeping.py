@@ -58,7 +58,11 @@ def swift_load_retention_policy(info):
         res_str = io.BytesIO()
         with tempfile.TemporaryDirectory() as tmp:
             dest = str(Path(tmp) / "retention_policy.json")
-            res = tuple(swift.download(container, ["retention_policy.json"], options={"out_file": dest}))
+            res = tuple(
+                swift.download(
+                    container, ["retention_policy.json"], options={"out_file": dest}
+                )
+            )
             if res[0]["success"]:
                 return retention_from_conf(json.load(open(dest)))
 
