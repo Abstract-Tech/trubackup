@@ -35,9 +35,10 @@ steps:
     displayName: 'Check configured pre-commit hooks'
 
   - script: |
+      tests/start_swift_server.sh
       pip install pytest
       pip install ./egg
-      pytest --doctest-modules egg
+      pytest egg
     displayName: 'Run pytest'
 
   - bash: make build-image

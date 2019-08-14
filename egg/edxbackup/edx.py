@@ -4,14 +4,14 @@ from glob import iglob
 import json
 import sys
 
-from swiftclient.service import SwiftService
-from swiftclient.service import SwiftUploadObject
-import swiftclient.service
 from functools import partial
 import click
 
+from swiftclient.service import SwiftUploadObject
+
 from edxbackup.options import dbconfig_path_option
 from edxbackup.options import dump_location_option
+from edxbackup.swift import getSwiftService
 
 
 @dump_location_option(
@@ -45,19 +45,6 @@ def dump(dump_location, dbconfig_path):
             click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
 
     if "swift" in info:
-        swift_info = info["swift"]
-        if "container" not in swift_info:
-            click.echo("No container specified. Aborting")
-            click.get_current_context().fail()
-        container = swift_info["container"]
-        print(f"Uploading via SWIFT to container {container}")
-        os.environ.update(swift_info["env"])
-        # Note that swiftclient builds its options at import time.
-        # We force repopulating them after setting the environment
-        swiftclient.service._default_global_options = (
-            swiftclient.service._build_default_global_options()
-        )
-
         to_upload = []
         for filepath in iglob(f"{output_dir}/**", recursive=True):
             if not os.path.isfile(filepath):
@@ -67,7 +54,12 @@ def dump(dump_location, dbconfig_path):
                     filepath, object_name=f"{'/'.join(filepath.split('/')[2:])}"
                 )
             )
-        with SwiftService() as swift:
+        if "container" not in swift_info:
+            click.echo("No container specified. Aborting")
+            click.get_current_context().fail()
+        container = info["swift_info"]["container"]
+        print(f"Uploading via SWIFT to container {container}")
+        with getSwiftService(info) as swift:
             # Consume the return value of swift.upload
             problems = [
                 el for el in swift.upload(container, to_upload) if not el["success"]

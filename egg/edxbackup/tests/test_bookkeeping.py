@@ -7,7 +7,7 @@ from typing import Tuple
 from click.testing import CliRunner
 
 
-def test_remove_old(tmp_path):
+def test_remove_old_local(tmp_path):
     from edxbackup.bookkeeping import remove_old
 
     dumps_path = tmp_path / "dumps"
@@ -43,6 +43,18 @@ def test_remove_old(tmp_path):
 
     # The default retention policy should have been added
     assert (dumps_path / "retention_policy.json").is_file()
+
+
+def test_remove_old_swift(tmp_path):
+    from edxbackup.bookkeeping import remove_old
+
+    config_file = Path(__file__).parent / "dump_conf.json"
+    runner = CliRunner()
+    result = runner.invoke(
+        remove_old,
+        ["--dbconfig-path", str(config_file), "--no-local", "--remote-swift"],
+    )
+    assert result.exit_code == 0, result.exception
 
 
 def create_dump_dirs(path: Path, dts: List[Tuple[int]]):
