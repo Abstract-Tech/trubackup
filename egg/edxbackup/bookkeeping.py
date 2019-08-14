@@ -3,6 +3,7 @@ from pathlib import Path
 import io
 import json
 import shutil
+import tempfile
 
 import click
 from swiftclient.service import SwiftUploadObject
@@ -54,8 +55,11 @@ def remove_old_remote_swift(dbconfig_path):
 def swift_load_retention_policy(info):
     container = info["swift"]["container"]
     with getSwiftService(info) as swift:
-        #import pdb; pdb.set_trace()
-        res = next(swift.download(container, ["retention_policy.json"]))
+        res_str = io.BytesIO()
+        with tempfile.TemporaryDirectory() as tmp:
+            dest = str(Path(tmp) / "retention_policy.json")
+            res = tuple(swift.download(container, ["retention_policy.json"], options={"out_file": dest}))
+            return retention_from_conf(json.load(open(dest)))
 
 
 def swift_create_default_retention_policy(info):
@@ -63,11 +67,11 @@ def swift_create_default_retention_policy(info):
     with getSwiftService(info) as swift:
         objects = [
             SwiftUploadObject(
-                io.StringIO(json.dumps(DEFAULT_RETENTION_POLICY)),
+                io.BytesIO(json.dumps(DEFAULT_RETENTION_POLICY).encode()),
                 object_name="retention_policy.json",
             )
         ]
-        res = next(swift.upload(container, objects))
+        res = tuple(swift.upload(container, objects))
     return retention_from_conf(DEFAULT_RETENTION_POLICY)
 
 
