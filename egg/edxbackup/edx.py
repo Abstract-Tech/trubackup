@@ -69,7 +69,9 @@ def dump(dump_location, dbconfig_path):
         os.environ.update(swift_info["env"])
         # Note that swiftclient builds its options at import time.
         # We force repopulating them after setting the environment
-        swiftclient.service._default_global_options = swiftclient.service._build_default_global_options()
+        swiftclient.service._default_global_options = (
+            swiftclient.service._build_default_global_options()
+        )
 
         to_upload = []
         for filepath in iglob(f"{output_dir}/**", recursive=True):
