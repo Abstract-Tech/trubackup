@@ -67,6 +67,7 @@ def swift_create_default_retention_policy(info):
             )
         ]
         res = next(swift.upload(container, objects))
+    return retention_from_conf(DEFAULT_RETENTION_POLICY)
 
 
 def remove_old_local(dump_location):
