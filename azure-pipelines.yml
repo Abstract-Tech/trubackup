@@ -37,7 +37,7 @@ steps:
   - script: |
       pip install pytest
       pip install ./egg
-      pytest egg
+      pytest --doctest-modules egg
     displayName: 'Run pytest'
 
   - bash: make build-image

@@ -19,6 +19,7 @@ setup(
         "pyAesCrypt",
         "python-swiftclient",
         "python-keystoneclient",
+        "terminaltables",
     ],
     entry_points={"console_scripts": ["edxbackup=edxbackup.cli:main"]},
 )
