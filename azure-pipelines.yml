@@ -23,7 +23,6 @@ steps:
       nohup docker pull jeantil/openstack-keystone-swift:pike &
     displayName: 'Download docker images in the background'
 
-
   - task: UsePythonVersion@0
     inputs:
       versionSpec: '3.6'
@@ -31,15 +30,21 @@ steps:
 
   - script: |
       python -m pip install --upgrade pip setuptools wheel
+      pip install pre-commit black flake8 mypy
+      pre-commit run --all-files
+    displayName: 'Check configured pre-commit hooks'
+
+  - script: |
       pip install pytest
-      ls -l
-      pwd
       pip install ./egg
       pytest egg
     displayName: 'Run pytest'
+
   - bash: make build-image
     displayName: 'Build docker image'
+
   - bash: make test-dump
     displayName: 'Test dump'
+
   - bash: make test-restore
     displayName: 'Test restore'
