@@ -46,15 +46,10 @@ def test_remove_old_local(tmp_path):
 
 
 def test_remove_old_swift(tmp_path):
-    from edxbackup.bookkeeping import remove_old
+    from edxbackup.bookkeeping import remove_old_remote_swift
 
     config_file = Path(__file__).parent / "dump_conf.json"
-    runner = CliRunner()
-    result = runner.invoke(
-        remove_old,
-        ["--dbconfig-path", str(config_file), "--no-local", "--remote-swift"],
-    )
-    assert result.exit_code == 0, result.exception
+    remove_old_remote_swift(str(config_file))
 
 
 def create_dump_dirs(path: Path, dts: List[Tuple[int]]):

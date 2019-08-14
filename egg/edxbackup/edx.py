@@ -54,10 +54,10 @@ def dump(dump_location, dbconfig_path):
                     filepath, object_name=f"{'/'.join(filepath.split('/')[2:])}"
                 )
             )
-        if "container" not in swift_info:
+        if "container" not in info["swift"]:
             click.echo("No container specified. Aborting")
             click.get_current_context().fail()
-        container = info["swift_info"]["container"]
+        container = info["swift"]["container"]
         print(f"Uploading via SWIFT to container {container}")
         with getSwiftService(info) as swift:
             # Consume the return value of swift.upload

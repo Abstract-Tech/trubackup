@@ -81,7 +81,7 @@ def test_to_delete_one_year():
         elements.insert(0, (now, i))
         i += 1
 
-        print("\n" + table_info(elements, now, TEST_RETENTION_POLICY))
+        #print("\n" + table_info(elements, now, TEST_RETENTION_POLICY))
 
         # remove the elements that `to_delete` reports as unnecessary
         elements_to_delete = {
