@@ -4,6 +4,10 @@ from glob import iglob
 import json
 import sys
 
+from swiftclient.service import SwiftError
+from swiftclient.service import SwiftService
+from swiftclient.service import SwiftUploadObject
+import swiftclient.service
 from functools import partial
 import click
 
@@ -64,13 +68,8 @@ def dump(dump_location, dbconfig_path):
         print(f"Uploading via SWIFT to container {container}")
         os.environ.update(swift_info["env"])
         # Note that swiftclient builds its options at import time.
-        # For this reason we import it here, after setting os.environ
-        # We might replace this with a call to
-        # swiftclient.service.reload()
-        # after setting the environment
-        from swiftclient.service import SwiftError
-        from swiftclient.service import SwiftService
-        from swiftclient.service import SwiftUploadObject
+        # We force repopulating them after setting the environment
+        swiftclient.service._default_global_options = swiftclient.service._build_default_global_options()
 
         to_upload = []
         for filepath in iglob(f"{output_dir}/**", recursive=True):
