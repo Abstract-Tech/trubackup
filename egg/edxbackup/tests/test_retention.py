@@ -4,12 +4,11 @@ from datetime import timedelta
 
 def test_to_delete():
     from edxbackup.retention import to_delete
+    from edxbackup.retention import retention_from_conf
 
-    TEST_RETENTION_POLICY = {
-        timedelta(days=1): 7,
-        timedelta(days=7): 4,
-        timedelta(days=28): 12,
-    }
+    TEST_RETENTION_POLICY = retention_from_conf(
+        (({"days": 1}, 7), ({"days": 7}, 4), ({"days": 28}, 12))
+    )
 
     TEST_DATA = [
         {

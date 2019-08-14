@@ -165,3 +165,11 @@ def to_delete(retention_policy, elements, now=None):
         else:
             filled_slots.add(key)
     return elements_to_delete
+
+
+def retention_from_conf(conf):
+    """Given a JSON-serializable configuration, return a retention policy.
+    >>> retention_from_conf([({"days": 1}, 8), ({"days": 7}, 4))
+    ((timedelta(1), 8), (timedelta(7), 4))
+    """
+    return {timedelta(**el[0]): el[1] for el in conf}
