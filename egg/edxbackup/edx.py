@@ -33,8 +33,8 @@ dump_location_option = partial(
 def dump(dump_location, dbconfig_path):
     """Dump Mysql and MongoDB databases relative to the given edX instance"""
     info = json.load(click.open_file(dbconfig_path))
-    now = datetime.datetime.now().isoformat()
-    output_dir = os.path.join(dump_location, f"edxdump-{now}")
+    now = datetime.datetime.utcnow().isoformat()
+    output_dir = os.path.join(dump_location, f"{now}")
     click.echo(f"Creating dumps in {output_dir}")
     os.mkdir(output_dir)
 
@@ -50,7 +50,7 @@ def dump(dump_location, dbconfig_path):
     click.echo("Dumping mysql")
     output_path = os.path.join(output_dir, "mysql_dump")
     for mysql_info in info["mysql"]:
-        cmd = f"mydumper {mysql_options(mysql_info)} -o {output_path}"
+        cmd = f"mydumper --compress {mysql_options(mysql_info)} -o {output_path}"
         print(f"Running:\n{cmd}")
         if os.system(cmd) != 0:
             click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
