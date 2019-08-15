@@ -6,9 +6,9 @@ resources:
 
 strategy:
   matrix:
-    ginkgo:
-      MYSQL_VERSION: 5.6.36
-      MONGO_VERSION: 2.6.12
+    #ginkgo:
+    #  MYSQL_VERSION: 5.6.36
+    #  MONGO_VERSION: 2.6.12
     hawthorn:
       MYSQL_VERSION: 5.6.36
       MONGO_VERSION: 3.2.16
