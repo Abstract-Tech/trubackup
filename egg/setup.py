@@ -14,6 +14,12 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     packages=["edxbackup"],
-    install_requires=["click"],
+    install_requires=[
+        "click",
+        "pendulum",
+        "python-swiftclient",
+        "python-keystoneclient",
+        "terminaltables",
+    ],
     entry_points={"console_scripts": ["edxbackup=edxbackup.cli:main"]},
 )

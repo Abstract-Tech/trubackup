@@ -1,0 +1,28 @@
+{
+    "mysql": [{
+        "dbname": "test",
+        "host": "127.0.0.1",
+        "user": "root",
+        "password": "foobar",
+        "port": "3309"
+    }],
+    "mongo": {
+        "dbname": "edxapp",
+        "host": "localhost",
+        "user": "edxapp",
+        "password": "secret",
+        "port": "27017"
+    },
+    "swift": {
+        "env": {
+            "OS_USERNAME": "swift",
+            "OS_PASSWORD": "fingertips",
+            "OS_PROJECT_NAME": "service",
+            "OS_USER_DOMAIN_NAME": "Default",
+            "OS_PROJECT_DOMAIN_NAME": "Default",
+            "OS_AUTH_URL": "http://127.0.0.1:35357/v3",
+            "OS_IDENTITY_API_VERSION": "3"
+        },
+        "container": "test_backup"
+    }
+}

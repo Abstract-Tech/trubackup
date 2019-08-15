@@ -1,166 +1,122 @@
 import os
 import datetime
+from glob import iglob
 import json
 import sys
 
-import click
 from functools import partial
+import click
 
-from edxbackup import options
+from swiftclient.service import SwiftUploadObject
 
-
-edx_config = click.option(
-    "--edx-config",
-    envvar="EDX_CONFIG",
-    required=True,
-    help="Path to lms.auth.json or cms.auth.json",
-)
+from edxbackup.options import dbconfig_path_option
+from edxbackup.options import dump_location_option
+from edxbackup.swift import getSwiftService
 
 
-dump_location = partial(click.option,
-    "--dump-location",
-    envvar="DUMP_LOCATION",
-    required=True,
-    help="Path where the dump will be read or written to",
-)
-
-
-@dump_location(
+@dump_location_option(
     type=click.Path(exists=True, writable=True, file_okay=False, dir_okay=True)
 )
-@edx_config
+@dbconfig_path_option
 @click.command(name="edx_dump")
-def dump(dump_location, edx_config):
+def dump(dump_location, dbconfig_path):
     """Dump Mysql and MongoDB databases relative to the given edX instance"""
-    info = extract_info(json.load(click.open_file(edx_config)))
-    now = datetime.datetime.now().isoformat()
-    output_dir = os.path.join(dump_location, f'edxdump-{now}')
-    click.echo(f'Creating dumps in {output_dir}')
+    info = json.load(click.open_file(dbconfig_path))
+    now = datetime.datetime.utcnow().isoformat()
+    output_dir = os.path.join(dump_location, f"{now}")
+    click.echo(f"Creating dumps in {output_dir}")
     os.mkdir(output_dir)
 
-    click.echo('Dumping mongodb')
-    output_path = os.path.join(output_dir, 'mongodb_dump.gz')
-    mongo_host = info['mongo'][0]['host']
-    mongo_port = info['mongo'][0]['port']
-    cmd = (
-        f"mongodump -h {mongo_host}:{mongo_port} "
-        f"--gzip --archive={output_path}")
+    click.echo("Dumping mongodb")
+    output_path = os.path.join(output_dir, "mongodb_dump.gz")
+    mongo_host = info["mongo"]["host"]
+    mongo_port = info["mongo"]["port"]
+    cmd = f"mongodump -h {mongo_host}:{mongo_port} " f"--gzip --archive={output_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
-        click.echo('Error dumping mongo')
+        click.echo("Error dumping mongo")
 
-    click.echo('Dumping mysql')
-    options = mysql_options(info)
-    output_path = os.path.join(output_dir, 'mysql_dump.sql.gz')
-    cmd = (f"mysqldump --all-databases --protocol tcp {options}"
-        f"|gzip -6 - >{output_path}")
-    print(f"Running:\n{cmd}")
-    if os.system(cmd) != 0:
-        click.echo('Error dumping mysql')
+    click.echo("Dumping mysql")
+    output_path = os.path.join(output_dir, "mysql_dump")
+    for mysql_info in info["mysql"]:
+        cmd = f"mydumper --compress {mysql_options(mysql_info)} -o {output_path}"
+        print(f"Running:\n{cmd}")
+        if os.system(cmd) != 0:
+            click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
+
+    if "swift" in info:
+        to_upload = []
+        for filepath in iglob(f"{output_dir}/**", recursive=True):
+            if not os.path.isfile(filepath):
+                continue
+            to_upload.append(
+                SwiftUploadObject(
+                    filepath, object_name=f"{'/'.join(filepath.split('/')[2:])}"
+                )
+            )
+        if "container" not in info["swift"]:
+            click.echo("No container specified. Aborting")
+            click.get_current_context().fail()
+        container = info["swift"]["container"]
+        print(f"Uploading via SWIFT to container {container}")
+        with getSwiftService(info) as swift:
+            # Consume the return value of swift.upload
+            problems = [
+                el
+                for el in swift.upload(container, to_upload)
+                if not el["success"] and el["action"] != "create_container"
+            ]
+        if problems:
+            print("There were problems uploading the dump via swift")
+            print(problems)
+            sys.exit(-1)
 
 
-@dump_location(
-    type=click.Path(exists=True, file_okay=False, dir_okay=True)
-)
-@edx_config
+@dump_location_option(type=click.Path(exists=True, file_okay=False, dir_okay=True))
+@dbconfig_path_option
 @click.command(name="edx_restore")
-def restore(dump_location, edx_config):
+def restore(dump_location, dbconfig_path):
     """Restore Mysql and MongoDB databases relative to the given edX instance"""
-    expected_content = ['mongodb_dump.gz', 'mysql_dump.sql.gz']
+    expected_content = ["mongodb_dump.gz", "mysql_dump"]
     actual_content = sorted(os.listdir(dump_location))
     if actual_content != expected_content:
-        click.echo(f'The directory {dump_location} does not contain '
-            f'the expected files ({expected_content})\n'
-            f'These files were found instead:\n{actual_content}')
+        click.echo(
+            f"The directory {dump_location} does not contain "
+            f"the expected files ({expected_content})\n"
+            f"These files were found instead:\n{actual_content}"
+        )
         sys.exit(1)
-    info = extract_info(json.load(click.open_file(edx_config)))
-    click.echo(f'Restoring dump from {dump_location}')
+    info = json.load(click.open_file(dbconfig_path))
+    click.echo(f"Restoring dump from {dump_location}")
 
-    click.echo('Restoring mongodb')
-    mongo_path = os.path.join(dump_location, 'mongodb_dump.gz')
-    mongo_host = info['mongo'][0]['host']
-    mongo_port = info['mongo'][0]['port']
-    cmd = (
-        f"mongorestore -h {mongo_host}:{mongo_port} "
-        f"--gzip --archive={mongo_path}")
+    click.echo("Restoring mongodb")
+    mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
+    mongo_host = info["mongo"]["host"]
+    mongo_port = info["mongo"]["port"]
+    cmd = f"mongorestore -h {mongo_host}:{mongo_port} " f"--gzip --archive={mongo_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
-        click.echo('Error restoring mongo')
+        click.echo("Error restoring mongo")
+        click.get_current_context().fail()
 
-    click.echo('Restoring mysql')
-    options = mysql_options(info)
-    path = os.path.join(dump_location, 'mysql_dump.sql.gz')
-    cmd = f"zcat {path}|mysql  --protocol tcp {options}"
+    click.echo("Restoring mysql")
+    options = mysql_options(info["mysql"])
+    path = os.path.join(dump_location, "mysql_dump")
+    cmd = f"myloader {options} --overwrite-tables --directory {path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
-        click.echo('Error dumping mysql')
+        click.echo("Error restoring mysql")
+        click.get_current_context().fail()
 
 
-
-def mysql_options(info):
-    """Return a string to be used with mysqldump/restore
-    given an `info` dict as returned by `extract_info`.
+def mysql_options(mysql_info):
+    """Return a string to be used with mydumper/myloader
+    given an mysql `info` dict.
     """
-    mysql_host = info['mysql'][0]['host']
-    mysql_port = info['mysql'][0]['port']
-    mysql_port = info['mysql'][0]['port']
-    mysql_user = info['mysql'][0]['user']
-    mysql_password = info['mysql'][0]['password']
-    return (f"-h {mysql_host} -u {mysql_user} "
-        f"-p{mysql_password} -P {mysql_port} ")
-
-
-def extract_info(json_content):
-    """Extract info about mongodb and mysql databases used by an edx instance.
-    It accepts a python dictionary containing the json-decoded info from
-    lms.auth.json or cms.auth.json file.
-
-    Returns a dictionary with the following structure:
-
-    {
-        "mysql": [{
-            "dbname": "edx",
-            "host": "localhost",
-            "user": "mysql_user",
-            "password": "mysql_password",
-            "port": "3306",
-        }],
-        "mongo": [{
-            "dbname": "edx",
-            "host": "localhost",
-            "user": "mongo_user",
-            "password": "mongo_password",
-            "port": "3306",
-        }]
-    }
-    """
-    result = dict(mysql=[], mongo=[])
-    result['mysql'] = extract_mysql_info(json_content)
-    result['mongo'] = extract_mongo_info(json_content)
+    result = (
+        f"--host {mysql_info['host']} --user {mysql_info['user']} "
+        f"--password {mysql_info['password']} --port {mysql_info['port']} "
+    )
+    if "dbname" in mysql_info:
+        result += f" -B {mysql_info['dbname']} "
     return result
-
-
-def extract_mysql_info(json_content):
-    result = []
-    for name, info in json_content['DATABASES'].items():
-        el = dict(
-            dbname=info['NAME'],
-            host=info['HOST'],
-            user=info['USER'],
-            password=info['PASSWORD'],
-            port=info['PORT'],
-            )
-        if el not in result:
-            result.append(el)
-    return result
-
-
-def extract_mongo_info(json_content):
-    conf = json_content['DOC_STORE_CONFIG']
-    return [dict(
-        dbname=conf['db'],
-        host=conf['host'][0],
-        user=conf['user'],
-        password=conf['password'],
-        port=conf['port'],
-    )]
