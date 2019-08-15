@@ -36,10 +36,10 @@ def remove_old(dump_location, dbconfig_path, local, remote_swift):
 def remove_old_remote_swift(dbconfig_path):
     info = json.load(click.open_file(dbconfig_path))
     container = info["swift"]["container"]
-    retention_policy = swift_load_retention_policy(info)
-    if retention_policy is None:
-        retention_policy = swift_create_default_retention_policy(info)
     with getSwiftService(info) as swift:
+        retention_policy = swift_load_retention_policy(swift, info)
+        if retention_policy is None:
+            retention_policy = swift_create_default_retention_policy(swift, info)
         # We need to explicitly list all objects that we want to delete.
         # Recursively deleting a "folder" is not supported.
         objects_to_delete = []
@@ -53,34 +53,30 @@ def remove_old_remote_swift(dbconfig_path):
                 raise ValueError(res)  # TODO: more meaningful error management
 
 
-def swift_load_retention_policy(info):
+def swift_load_retention_policy(swift, info):
     container = info["swift"]["container"]
-    with getSwiftService(info) as swift:
-        with tempfile.TemporaryDirectory() as tmp:
-            dest = str(Path(tmp) / "retention_policy.json")
-            res = tuple(
-                swift.download(
-                    container, ["retention_policy.json"], options={"out_file": dest}
-                )
+    with tempfile.TemporaryDirectory() as tmp:
+        dest = str(Path(tmp) / "retention_policy.json")
+        res = tuple(
+            swift.download(
+                container, ["retention_policy.json"], options={"out_file": dest}
             )
-            if res[0]["success"]:
-                return retention_from_conf(json.load(open(dest)))
+        )
+        if res[0]["success"]:
+            return retention_from_conf(json.load(open(dest)))
 
 
-def swift_create_default_retention_policy(info):
+def swift_create_default_retention_policy(swift, info):
     container = info["swift"]["container"]
-    with getSwiftService(info) as swift:
-        objects = [
-            SwiftUploadObject(
-                io.BytesIO(json.dumps(DEFAULT_RETENTION_POLICY).encode()),
-                object_name="retention_policy.json",
-            )
-        ]
-        for res in swift.upload(container, objects):
-
-            if not res["success"] and res["action"] != "create_container":
-                raise ValueError(res)
-
+    objects = [
+        SwiftUploadObject(
+            io.BytesIO(json.dumps(DEFAULT_RETENTION_POLICY).encode()),
+            object_name="retention_policy.json",
+        )
+    ]
+    for res in swift.upload(container, objects):
+        if not res["success"] and res["action"] != "create_container":
+            raise ValueError(res)
     return retention_from_conf(DEFAULT_RETENTION_POLICY)
 
 
