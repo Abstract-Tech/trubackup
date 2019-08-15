@@ -40,7 +40,7 @@ def dump(dump_location, dbconfig_path):
     output_path = os.path.join(output_dir, "mysql_dump")
     for mysql_info in info["mysql"]:
         cmd = f"mydumper --compress {mysql_options(mysql_info)} -o {output_path}"
-        print(f"Running:\n{cmd}")
+        print(f"Running:\n{cmd.replace(mysql_info['password'], '')}")
         if os.system(cmd) != 0:
             click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
 
@@ -93,7 +93,7 @@ def restore(dump_location, dbconfig_path):
     mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
-    cmd = f"mongorestore -h {mongo_host}:{mongo_port} " f"--gzip --archive={mongo_path}"
+    cmd = f"mongorestore -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo("Error restoring mongo")
@@ -103,7 +103,7 @@ def restore(dump_location, dbconfig_path):
     options = mysql_options(info["mysql"])
     path = os.path.join(dump_location, "mysql_dump")
     cmd = f"myloader {options} --overwrite-tables --directory {path}"
-    print(f"Running:\n{cmd}")
+    print(f"Running:\n{cmd.replace(info['mysql']['password'], '')}")
     if os.system(cmd) != 0:
         click.echo("Error restoring mysql")
         click.get_current_context().fail()
