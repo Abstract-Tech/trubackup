@@ -37,6 +37,10 @@ test-dump : $(DUMP_FILENAME)
 pytest :
 	pytest egg
 
+.PHONY: shell
+shell :
+	docker run --rm -ti --env-file tests/test.env --network host $$(cat build-image) sh
+
 $(DUMP_FILENAME) : $(wildcard tests/insert*.sh)
 	$(call ndef,MYSQL_VERSION)
 	$(call ndef,MONGO_VERSION)
