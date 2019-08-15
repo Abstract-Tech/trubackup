@@ -50,3 +50,8 @@ steps:
 
   - bash: make test-restore
     displayName: 'Test restore'
+
+  - bash: |
+      . .envrc
+      edxbackup info
+    displayName: 'Print info'
