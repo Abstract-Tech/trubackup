@@ -88,7 +88,8 @@ def swift_create_default_retention_policy(info):
             )
         ]
         for res in swift.upload(container, objects):
-            if not res["success"]:
+
+            if not res["success"] and res["action"] != "create_container":
                 raise ValueError(res)
 
     return retention_from_conf(DEFAULT_RETENTION_POLICY)

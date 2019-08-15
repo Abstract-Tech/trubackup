@@ -62,7 +62,9 @@ def dump(dump_location, dbconfig_path):
         with getSwiftService(info) as swift:
             # Consume the return value of swift.upload
             problems = [
-                el for el in swift.upload(container, to_upload) if not el["success"]
+                el
+                for el in swift.upload(container, to_upload)
+                if not el["success"] and el["action"] != "create_container"
             ]
         if problems:
             print("There were problems uploading the dump via swift")
