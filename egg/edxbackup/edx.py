@@ -64,10 +64,10 @@ def dump(dump_location, dbconfig_path):
             problems = [
                 el for el in swift.upload(container, to_upload) if not el["success"]
             ]
-            if problems:
-                print("There were problems uploading the dump via swift")
-                print(problems)
-                sys.exit(-1)
+        if problems:
+            print("There were problems uploading the dump via swift")
+            print(problems)
+            sys.exit(-1)
 
 
 @dump_location_option(type=click.Path(exists=True, file_okay=False, dir_okay=True))

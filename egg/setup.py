@@ -16,6 +16,7 @@ setup(
     packages=["edxbackup"],
     install_requires=[
         "click",
+        "pendulum",
         "python-swiftclient",
         "python-keystoneclient",
         "terminaltables",

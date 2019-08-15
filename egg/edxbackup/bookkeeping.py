@@ -6,6 +6,8 @@ import shutil
 import tempfile
 
 import click
+import pendulum
+from pendulum.exceptions import ParserError
 from swiftclient.service import SwiftUploadObject
 
 from edxbackup.options import dbconfig_path_option
@@ -36,26 +38,35 @@ def remove_old_remote_swift(dbconfig_path):
     retention_policy = swift_load_retention_policy(info)
     if retention_policy is None:
         retention_policy = swift_create_default_retention_policy(info)
-    with getSwiftService(info) as swift:
-        print(swift)
-        timestamps = []
-        for res in swift.list(container, options=dict(prefix="", delimiter="/")):
-            timestamps += res["listing"][0].get("subdir", [])
     elements = []
-    for timestamp in timestamps:
+    with getSwiftService(info) as swift:
+        for res in swift.list(container, options=dict(prefix="", delimiter="/")):
+            elements += [el["subdir"] for el in res["listing"] if "subdir" in el]
+    timestamps = []
+    for element in elements:
         try:
-            elements.append(
-                (datetime.strptime(timestamp, "%Y-%m-%dT%H:%M:%S"), timestamp)
-            )
-        except ValueError:
+            # `element` includes a trailing slash
+            pendulum_dt = pendulum.parse(element[:-1]).timestamp()
+            dt = datetime.fromtimestamp(pendulum_dt)
+            timestamps.append((dt, element[:-1]))
+        except ParserError:
             pass
-    elements_to_delete = to_delete(retention_policy, elements)
+    # We need to explicitly list all objects that we want to delete.
+    # Recursively deleting a "folder" is not supported.
+    objects_to_delete = []
+    with getSwiftService(info) as swift:
+        for _, timestamp in to_delete(retention_policy, timestamps):
+            for res in swift.list(container, options=dict(prefix=timestamp)):
+                objects_to_delete += [el["name"] for el in res["listing"]]
+    with getSwiftService(info) as swift:
+        for res in swift.delete(container, objects_to_delete):
+            if not res["success"]:
+                raise ValueError(res)  # TODO: more meaningful error management
 
 
 def swift_load_retention_policy(info):
     container = info["swift"]["container"]
     with getSwiftService(info) as swift:
-        res_str = io.BytesIO()
         with tempfile.TemporaryDirectory() as tmp:
             dest = str(Path(tmp) / "retention_policy.json")
             res = tuple(
@@ -76,7 +87,10 @@ def swift_create_default_retention_policy(info):
                 object_name="retention_policy.json",
             )
         ]
-        res = tuple(swift.upload(container, objects))
+        for res in swift.upload(container, objects):
+            if not res["success"]:
+                raise ValueError(res)
+
     return retention_from_conf(DEFAULT_RETENTION_POLICY)
 
 
