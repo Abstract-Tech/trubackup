@@ -18,7 +18,7 @@ FROM mongo:3.2.16 as mongo
 
 # Compile our egg dependencies (swift/keystone)
 FROM python:3.7-alpine3.10 as dev
-RUN apk add linux-headers python3-dev gcc musl-dev libffi-dev libressl-dev
+RUN apk add linux-headers python3-dev gcc musl-dev
 COPY egg /egg
 
 RUN pip install --no-cache-dir -U pip && \
