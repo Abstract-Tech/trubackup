@@ -14,6 +14,7 @@ from edxbackup.options import dbconfig_path_option
 from edxbackup.options import dump_location_option
 from edxbackup.retention import retention_from_conf
 from edxbackup.retention import to_delete
+from edxbackup.swift import get_timestamps
 from edxbackup.swift import getSwiftService
 
 
@@ -38,23 +39,13 @@ def remove_old_remote_swift(dbconfig_path):
     retention_policy = swift_load_retention_policy(info)
     if retention_policy is None:
         retention_policy = swift_create_default_retention_policy(info)
-    elements = []
     with getSwiftService(info) as swift:
-        for res in swift.list(container, options=dict(prefix="", delimiter="/")):
-            elements += [el["subdir"] for el in res["listing"] if "subdir" in el]
-        timestamps = []
-        for element in elements:
-            try:
-                # `element` includes a trailing slash
-                pendulum_dt = pendulum.parse(element[:-1]).timestamp()
-                dt = datetime.fromtimestamp(pendulum_dt)
-                timestamps.append((dt, element[:-1]))
-            except ParserError:
-                pass
         # We need to explicitly list all objects that we want to delete.
         # Recursively deleting a "folder" is not supported.
         objects_to_delete = []
-        for _, timestamp in to_delete(retention_policy, timestamps):
+        for _, timestamp in to_delete(
+            retention_policy, get_timestamps(container, swift)
+        ):
             for res in swift.list(container, options=dict(prefix=timestamp)):
                 objects_to_delete += [el["name"] for el in res["listing"]]
         for res in swift.delete(container, objects_to_delete):
