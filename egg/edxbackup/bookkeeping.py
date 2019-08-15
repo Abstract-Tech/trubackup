@@ -42,23 +42,21 @@ def remove_old_remote_swift(dbconfig_path):
     with getSwiftService(info) as swift:
         for res in swift.list(container, options=dict(prefix="", delimiter="/")):
             elements += [el["subdir"] for el in res["listing"] if "subdir" in el]
-    timestamps = []
-    for element in elements:
-        try:
-            # `element` includes a trailing slash
-            pendulum_dt = pendulum.parse(element[:-1]).timestamp()
-            dt = datetime.fromtimestamp(pendulum_dt)
-            timestamps.append((dt, element[:-1]))
-        except ParserError:
-            pass
-    # We need to explicitly list all objects that we want to delete.
-    # Recursively deleting a "folder" is not supported.
-    objects_to_delete = []
-    with getSwiftService(info) as swift:
+        timestamps = []
+        for element in elements:
+            try:
+                # `element` includes a trailing slash
+                pendulum_dt = pendulum.parse(element[:-1]).timestamp()
+                dt = datetime.fromtimestamp(pendulum_dt)
+                timestamps.append((dt, element[:-1]))
+            except ParserError:
+                pass
+        # We need to explicitly list all objects that we want to delete.
+        # Recursively deleting a "folder" is not supported.
+        objects_to_delete = []
         for _, timestamp in to_delete(retention_policy, timestamps):
             for res in swift.list(container, options=dict(prefix=timestamp)):
                 objects_to_delete += [el["name"] for el in res["listing"]]
-    with getSwiftService(info) as swift:
         for res in swift.delete(container, objects_to_delete):
             if not res["success"]:
                 raise ValueError(res)  # TODO: more meaningful error management
