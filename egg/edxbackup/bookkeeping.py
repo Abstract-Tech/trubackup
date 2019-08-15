@@ -103,9 +103,9 @@ def remove_old_local(dump_location):
     elements = []
     for dirpath in dump_path.iterdir():
         if dirpath.is_dir():
-            elements.append(
-                (datetime.strptime(dirpath.name, "%Y-%m-%dT%H:%M:%S"), dirpath)
-            )
+            pendulum_dt = pendulum.parse(dirpath.name).timestamp()
+            dt = datetime.fromtimestamp(pendulum_dt)
+            elements.append((dt, dirpath))
     elements_to_delete = to_delete(retention_policy, elements)
     for _, path in elements_to_delete:
         shutil.rmtree(path)
