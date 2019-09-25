@@ -93,7 +93,7 @@ def restore(dump_location, dbconfig_path):
     mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
-    cmd = f"mongorestore -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
+    cmd = f"mongorestore --drop -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo("Error restoring mongo")
