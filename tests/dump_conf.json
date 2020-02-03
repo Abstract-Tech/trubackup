@@ -9,8 +9,6 @@
     "mongo": {
         "dbname": "edxapp",
         "host": "localhost",
-        "user": "edxapp",
-        "password": "secret",
         "port": "27017"
     },
     "swift": {

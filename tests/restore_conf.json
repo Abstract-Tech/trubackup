@@ -8,8 +8,6 @@
     "mongo": {
         "dbname": "edxapp",
         "host": "localhost",
-        "user": "edxapp",
-        "password": "foobar",
         "port": "27017"
     }
 }

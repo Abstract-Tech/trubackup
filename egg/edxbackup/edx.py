@@ -31,7 +31,11 @@ def dump(dump_location, dbconfig_path):
     output_path = os.path.join(output_dir, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
+    mongo_user = info["mongo"].get("user")
+    mongo_password = info["mongo"].get("password")
     cmd = f"mongodump -h {mongo_host}:{mongo_port} " f"--gzip --archive={output_path}"
+    if mongo_user and mongo_password:
+        cmd += f" --username={mongo_user} --password={mongo_password}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo("Error dumping mongo")
@@ -92,7 +96,11 @@ def restore(dump_location, dbconfig_path):
     mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
+    mongo_user = info["mongo"].get("user")
+    mongo_password = info["mongo"].get("password")
     cmd = f"mongorestore --drop -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
+    if mongo_user and mongo_password:
+        cmd += f" --username={mongo_user} --password={mongo_password}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.get_current_context().fail("Error restoring mongo")
