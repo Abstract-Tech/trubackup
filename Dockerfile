@@ -30,7 +30,8 @@ FROM python:3.7-alpine3.10
 COPY --from=dev /wheelhouse /wheelhouse
 COPY egg /egg
 
-RUN apk --no-cache add ${LIB_PACKAGES}
+# We can't use LIB_PACKAGES here because it was defined in a different FROM block
+RUN apk --no-cache add libffi glib zlib pcre libressl mariadb-connector-c
 
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -e /egg --find-links /wheelhouse
