@@ -55,8 +55,7 @@ def dump(dump_location, dbconfig_path):
                 )
             )
         if "container" not in info["swift"]:
-            click.echo("No container specified. Aborting")
-            click.get_current_context().fail()
+            click.get_current_context().fail("No container specified. Aborting")
         container = info["swift"]["container"]
         print(f"Uploading via SWIFT to container {container}")
         with getSwiftService(info) as swift:
@@ -96,8 +95,7 @@ def restore(dump_location, dbconfig_path):
     cmd = f"mongorestore --drop -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
-        click.echo("Error restoring mongo")
-        click.get_current_context().fail()
+        click.get_current_context().fail("Error restoring mongo")
 
     click.echo("Restoring mysql")
     options = mysql_options(info["mysql"])
@@ -105,8 +103,7 @@ def restore(dump_location, dbconfig_path):
     cmd = f"myloader {options} --overwrite-tables --directory {path}"
     print(f"Running:\n{cmd.replace(info['mysql']['password'], '')}")
     if os.system(cmd) != 0:
-        click.echo("Error restoring mysql")
-        click.get_current_context().fail()
+        click.get_current_context().fail("Error restoring mysql")
 
 
 def mysql_options(mysql_info):
