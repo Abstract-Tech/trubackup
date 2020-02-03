@@ -1,8 +1,8 @@
 FROM alpine:3.10 as mydumper
 
 ENV PACKAGES="mariadb-client" \
-    LIB_PACKAGES="glib-dev mariadb-dev zlib-dev pcre-dev libressl-dev" \
-    BUILD_PACKAGES="cmake build-base git"
+    LIB_PACKAGES="libffi glib zlib pcre libressl mariadb-connector-c" \
+    BUILD_PACKAGES="cmake build-base git glib-dev mariadb-dev zlib-dev pcre-dev libressl-dev"
 
 RUN apk --no-cache add \
           $PACKAGES \
@@ -18,7 +18,7 @@ FROM mongo:3.2.16 as mongo
 
 # Compile our egg dependencies (swift/keystone)
 FROM python:3.7-alpine3.10 as dev
-RUN apk add linux-headers python3-dev gcc musl-dev
+RUN apk add linux-headers python3-dev gcc musl-dev libffi-dev openssl-dev
 COPY egg /egg
 
 RUN pip install --no-cache-dir -U pip && \
@@ -30,14 +30,12 @@ FROM python:3.7-alpine3.10
 COPY --from=dev /wheelhouse /wheelhouse
 COPY egg /egg
 
-RUN apk --no-cache add glib zlib pcre libressl mariadb-connector-c
+RUN apk --no-cache add ${LIB_PACKAGES}
 
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -e /egg --find-links /wheelhouse
 # Uncomment to debug
 # RUN pip install --no-cache-dir pdbpp
-
-CMD /usr/local/bin/edxbackup
 
 # Experimental strategy: we copy the binary files (executable and libraries) that we need
 # from a specific version of the docker image.
