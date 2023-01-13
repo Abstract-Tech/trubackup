@@ -3,9 +3,8 @@ CURRENT_DIR = $(shell pwd)
 DUMP_FILENAME = dumps/mysql-$(MYSQL_VERSION)_mongo-$(MONGO_VERSION)
 DEFAULT_DOCKER_IMAGE = abstract2tech/edxbackup
 DOCKER_IMAGE = $(shell sed -e 's/:.*//' build-image 2> /dev/null || echo '$(DEFAULT_DOCKER_IMAGE)')
-DOCKER_IMAGE_LOCAL_TAG = ${shell md5sum <(md5sum $(CURRENT_DIR)/Dockerfile $(find $(CURRENT_DIR)/egg -type f))| cut -c -8}
+DOCKER_IMAGE_LOCAL_TAG = ${shell git describe || git rev-parse --short HEAD}
 SHELLOPTS=$(if $(SHELLOPTS),$(SHELLOPTS):)pipefail:errexit
-DUMP_SOURCE = $(shell find $(CURRENT_DIR)/$(DUMP_FILENAME) -maxdepth 1 -mindepth 1 -type d)
 
 ndef = $(if $(value $(1)),,$(error $(1) not set))
 

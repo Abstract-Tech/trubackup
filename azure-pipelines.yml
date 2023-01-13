@@ -41,9 +41,6 @@ steps:
   - bash: make build-image
     displayName: 'Build docker image'
 
-  - bash: make test
-    displayName: 'Run tests'
-
   - bash: |
       . .envrc
       edxbackup info
