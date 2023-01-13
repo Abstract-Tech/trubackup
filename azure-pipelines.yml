@@ -41,11 +41,8 @@ steps:
   - bash: make build-image
     displayName: 'Build docker image'
 
-  - bash: make test-dump
-    displayName: 'Test dump'
-
-  - bash: make test-restore
-    displayName: 'Test restore'
+  - bash: make test
+    displayName: 'Run tests'
 
   - bash: |
       . .envrc
