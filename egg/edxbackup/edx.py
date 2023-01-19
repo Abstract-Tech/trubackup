@@ -45,13 +45,14 @@ def dump(dump_location, dbconfig_path):
         if os.system(cmd) != 0:
             click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
 
-    click.echo("Dumping S3")
-    output_path = os.path.join(output_dir, "s3.tar.gz")
-    s3_host = info["s3"]["host"]
-    s3_access_key = info["s3"]["access_key"]
-    s3_secret_key = info["s3"]["secret_key"]
-    s3_https = info["s3"]["https"]
-    dump_s3(s3_host, s3_access_key, s3_secret_key, output_path, s3_https)
+    if "s3" in info:
+        click.echo("Dumping S3")
+        output_path = os.path.join(output_dir, "s3.tar.gz")
+        s3_host = info["s3"]["host"]
+        s3_access_key = info["s3"]["access_key"]
+        s3_secret_key = info["s3"]["secret_key"]
+        s3_https = info["s3"]["https"]
+        dump_s3(s3_host, s3_access_key, s3_secret_key, output_path, s3_https)
 
     if "swift" in info:
         to_upload = []
