@@ -38,7 +38,7 @@ Save the file and point edxdump to it:
         -v /path/to/dump/destination:/destination \
         -v /path/to/config/file.json:/etc/edxbackup.json \
         --rm \
-        silviot/edx-backup edxbackup edx_dump
+        abstract2tech/edx-backup edxbackup edx_dump
 
 Restore example:
 
@@ -47,7 +47,7 @@ Restore example:
         -v /path/to/dump/destination:/destination \
         -v /path/to/config/file.json:/etc/edxbackup.json \
         --rm \
-            silviot/edx-backup edxbackup edx_restore
+            abstract2tech/edx-backup edxbackup edx_restore
 
 
 Building
