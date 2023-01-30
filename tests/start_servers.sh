@@ -5,7 +5,7 @@ DIR=$(dirname "$(readlink -f "$0")")
 
 # Start mongo and mysql services
 docker run --rm -d -p 3309:3306 --name edxbackup_test_mysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} mysql:${MYSQL_VERSION}
-docker run --rm -d -p 27017:27017 --name edxbackup_test_mongo mongo:${MONGO_VERSION}
+docker run --rm -d -p 27017:27017 --name edxbackup_test_mongo -e MONGO_INITDB_ROOT_USERNAME=root -e MONGO_INITDB_ROOT_PASSWORD=foobar mongo:${MONGO_VERSION}
 
 # Start swift server
 ${DIR}/start_swift_server.sh
