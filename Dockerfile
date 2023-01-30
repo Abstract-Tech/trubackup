@@ -1,7 +1,7 @@
-FROM alpine:3.10 as mydumper
+FROM alpine:3.17 as mydumper
 
 ENV PACKAGES="mariadb-client" \
-    LIB_PACKAGES="glib-dev mariadb-dev zlib-dev pcre-dev libressl-dev" \
+    LIB_PACKAGES="glib-dev mariadb-dev zlib-dev pcre-dev openssl-dev" \
     BUILD_PACKAGES="cmake build-base git"
 
 RUN apk --no-cache add \
@@ -13,12 +13,9 @@ RUN cd /opt/mydumper-src/ && \
     cmake . && \
     make
 
-# Mention the mongo image so that we can copy its binaries
-FROM mongo:3.2.16 as mongo
-
 # Compile our egg dependencies (swift/keystone)
-FROM python:3.7-alpine3.10 as dev
-RUN apk add linux-headers python3-dev gcc musl-dev
+FROM python:3.11-alpine3.17 as dev
+RUN apk add linux-headers gcc musl-dev
 COPY egg /egg
 
 RUN pip install --no-cache-dir -U pip && \
@@ -26,11 +23,11 @@ RUN pip install --no-cache-dir -U pip && \
     `# Only keep binary wheels` \
     rm /wheelhouse/*-none-*
 
-FROM python:3.7-alpine3.10
+FROM python:3.11-alpine3.17
 COPY --from=dev /wheelhouse /wheelhouse
 COPY egg /egg
 
-RUN apk --no-cache add glib zlib pcre libressl mariadb-connector-c
+RUN apk --no-cache add glib zlib pcre openssl mariadb-connector-c mongodb-tools
 
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -e /egg --find-links /wheelhouse
@@ -39,16 +36,6 @@ RUN pip install --no-cache-dir -U pip && \
 
 CMD /usr/local/bin/edxbackup
 
-# Experimental strategy: we copy the binary files (executable and libraries) that we need
-# from a specific version of the docker image.
-# This allows us to tie mongodb version to a specific docker image, and not
-# be limited to the version shipped with Alpine Linux
-# The fact that we're copying libc suggests we might consider switching to a
-# libc-based distro instead of a musl-based one
-RUN mkdir /lib64
-COPY --from=mongo /usr/bin/mongorestore /usr/bin/mongodump /usr/bin/
-COPY --from=mongo /lib64/ld-linux-x86-64.so.2 /lib64/ld-linux-x86-64.so.2
-COPY --from=mongo /lib/x86_64-linux-gnu/libdl.so.2 /lib/x86_64-linux-gnu/libc.so.6 /lib/x86_64-linux-gnu/libpthread.so.0 /usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 /usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 /usr/lib/x86_64-linux-gnu/
 COPY --from=mydumper /opt/mydumper-src/mydumper /opt/mydumper-src/myloader /usr/bin/
 
 CMD ["/usr/sbin/crond", "-f", "-L", "8"]

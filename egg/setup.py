@@ -20,6 +20,7 @@ setup(
         "python-swiftclient",
         "python-keystoneclient",
         "terminaltables",
+        "minio",
     ],
     entry_points={"console_scripts": ["edxbackup=edxbackup.cli:main"]},
 )
