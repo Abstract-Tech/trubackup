@@ -115,13 +115,15 @@ def restore(dump_location, dbconfig_path):
         click.get_current_context().fail()
 
     click.echo("Restoring mysql")
-    options = mysql_options(info["mysql"])
-    path = os.path.join(dump_location, "mysql_dump")
-    cmd = f"myloader {options} --overwrite-tables --directory {path}"
-    print(f"Running:\n{cmd.replace(info['mysql']['password'], '')}")
-    if os.system(cmd) != 0:
-        click.echo("Error restoring mysql")
-        click.get_current_context().fail()
+
+    for mysql_info in info["mysql"]:
+        options = mysql_options(mysql_info)
+        path = os.path.join(dump_location, "mysql_dump")
+        cmd = f"myloader {options} --overwrite-tables --directory {path}"
+        print(f"Running:\n{cmd.replace(mysql_info['password'], '')}")
+        if os.system(cmd) != 0:
+            click.echo("Error restoring mysql")
+            click.get_current_context().fail()
 
     if "s3" in info:
         click.echo("Restore S3")
