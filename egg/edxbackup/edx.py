@@ -32,7 +32,7 @@ def dump(dump_location, dbconfig_path):
     output_path = os.path.join(output_dir, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
-    cmd = f"mongodump -h {mongo_host}:{mongo_port} " f"--gzip --archive={output_path}"
+    cmd = f"mongodump {mongo_options(info['mongo'])} --gzip --archive={output_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo("Error dumping mongo")
@@ -108,7 +108,7 @@ def restore(dump_location, dbconfig_path):
     mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
     mongo_host = info["mongo"]["host"]
     mongo_port = info["mongo"]["port"]
-    cmd = f"mongorestore -h {mongo_host}:{mongo_port} --gzip --archive={mongo_path}"
+    cmd = f"mongorestore {mongo_options(info['mongo'])} --gzip --archive={mongo_path}"
     print(f"Running:\n{cmd}")
     if os.system(cmd) != 0:
         click.echo("Error restoring mongo")
@@ -144,3 +144,23 @@ def mysql_options(mysql_info):
     if "dbname" in mysql_info:
         result += f" -B {mysql_info['dbname']} "
     return result
+
+
+def mongo_options(mongo_info):
+    """Return a string to be used with mydumper/myloader
+    given an mysql `info` dict.
+    """
+    mongo_host = mongo_info["host"]
+    mongo_port = mongo_info["port"]
+    mongo_user = mongo_info["user"]
+    mongo_password = mongo_info["password"]
+    mongo_db  = mongo_info["dbname"]
+
+    options = (
+        f"--host={mongo_host}:{mongo_port} "
+        f"--db={mongo_db} "
+        f"--username={mongo_user} "
+        f"--password={mongo_password} "
+        f"--authenticationDatabase=admin"
+    )
+    return options
