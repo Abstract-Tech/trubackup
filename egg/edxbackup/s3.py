@@ -12,11 +12,10 @@ def dump_s3(host, access_key, secret_key, dump_to, https=True):
     Dump every file at specified S3 host into a .tar.gz archive
     """
     s3_client = Minio(host, access_key, secret_key, secure=https)
-    archive = tarfile.open(dump_to, mode='w:gz')
+    archive = tarfile.open(dump_to, mode="w:gz")
 
     for bucket in s3_client.list_buckets():
         for obj in s3_client.list_objects(bucket.name, recursive=True):
-
             _, buf_file = tempfile.mkstemp()
 
             s3_client.fget_object(bucket.name, obj.object_name, buf_file)
@@ -34,7 +33,7 @@ def restore_s3(host, access_key, secret_key, restore_from, https=True):
     Upload every file from .tar.gz archvie into S3 host
     """
     s3_client = Minio(host, access_key, secret_key, secure=https)
-    archive = tarfile.open(restore_from, mode='r:gz')
+    archive = tarfile.open(restore_from, mode="r:gz")
 
     for tarinfo in archive:
         if tarinfo.isfile():

@@ -9,8 +9,11 @@ import click
 
 from swiftclient.service import SwiftUploadObject
 
+from edxbackup.config import EdxbackupConfig
 from edxbackup.options import dbconfig_path_option
 from edxbackup.options import dump_location_option
+from edxbackup.mysql import dump_mysql_db, restore_mysql_db
+from edxbackup.mongo import dump_mongo_db, restore_mongo_db
 from edxbackup.swift import getSwiftService
 from edxbackup.s3 import dump_s3, restore_s3
 
@@ -22,38 +25,33 @@ from edxbackup.s3 import dump_s3, restore_s3
 @click.command(name="edx_dump")
 def dump(dump_location, dbconfig_path):
     """Dump Mysql and MongoDB databases relative to the given edX instance"""
-    info = json.load(click.open_file(dbconfig_path))
+    info = EdxbackupConfig(**json.load(click.open_file(dbconfig_path)))
+
     now = datetime.datetime.utcnow().isoformat()
     output_dir = os.path.join(dump_location, f"{now}")
-    click.echo(f"Creating dumps in {output_dir}")
+    click.echo(f"Creating dump in {output_dir}")
     os.mkdir(output_dir)
 
     click.echo("Dumping mongodb")
-    output_path = os.path.join(output_dir, "mongodb_dump.gz")
-    mongo_host = info["mongo"]["host"]
-    mongo_port = info["mongo"]["port"]
-    cmd = f"mongodump {mongo_options(info['mongo'])} --gzip --archive={output_path}"
-    print(f"Running:\n{cmd}")
-    if os.system(cmd) != 0:
-        click.echo("Error dumping mongo")
+    for mongo_info in info.mongo:
+        dump_mongo_db(mongo_info, output_dir)
 
     click.echo("Dumping mysql")
-    output_path = os.path.join(output_dir, "mysql_dump")
-    for mysql_info in info["mysql"]:
-        cmd = f"mydumper --compress {mysql_options(mysql_info)} -o {output_path}"
-        print(f"Running:\n{cmd.replace(mysql_info['password'], '')}")
-        if os.system(cmd) != 0:
-            click.echo(f'Error dumping mysql db {mysql_info.get("dbname")}')
+    for mysql_info in info.mysql:
+        dump_mysql_db(mysql_info, output_dir)
 
-    if "s3" in info:
-        click.echo("Dumping S3")
-        output_path = os.path.join(output_dir, "s3.tar.gz")
-        s3_host = info["s3"]["host"]
-        s3_access_key = info["s3"]["access_key"]
-        s3_secret_key = info["s3"]["secret_key"]
-        s3_https = info["s3"]["https"]
-        dump_s3(s3_host, s3_access_key, s3_secret_key, output_path, s3_https)
+    click.echo("Dumping S3")
+    if info.s3 is not None:
+        dump_path = os.path.join(output_dir, "s3.tar.gz")
+        dump_s3(
+            info.s3.host,
+            info.s3.access_key,
+            info.s3.secret_key,
+            dump_path,
+            info.s3.https,
+        )
 
+    click.echo("Uploading dump")
     if "swift" in info:
         to_upload = []
         for filepath in iglob(f"{output_dir}/**", recursive=True):
@@ -87,82 +85,24 @@ def dump(dump_location, dbconfig_path):
 @click.command(name="edx_restore")
 def restore(dump_location, dbconfig_path):
     """Restore Mysql and MongoDB databases relative to the given edX instance"""
-    mongo_dump = "mongodb_dump_sql"
-    mysql_dump = "mysql_dump"
-    s3_dump    = "s3_dump.tar.gz"
-    expected_content = [mongo_dump, mysql_dump, s3_dump]
-
-    actual_content = sorted(os.listdir(dump_location))
-    if set(actual_content) <= set(expected_content):
-        click.echo(
-            f"The directory {dump_location} does not contain "
-            f"the expected files ({expected_content})\n"
-            f"These files were found instead:\n{actual_content}"
-        )
-        sys.exit(1)
-
-    info = json.load(click.open_file(dbconfig_path))
+    info = EdxbackupConfig(**json.load(click.open_file(dbconfig_path)))
     click.echo(f"Restoring dump from {dump_location}")
 
     click.echo("Restoring mongodb")
-    mongo_path = os.path.join(dump_location, "mongodb_dump.gz")
-    mongo_host = info["mongo"]["host"]
-    mongo_port = info["mongo"]["port"]
-    cmd = f"mongorestore {mongo_options(info['mongo'])} --gzip --archive={mongo_path}"
-    print(f"Running:\n{cmd}")
-    if os.system(cmd) != 0:
-        click.echo("Error restoring mongo")
-        click.get_current_context().fail()
+    for mongo_info in info.mongo:
+        restore_mongo_db(mongo_info, dump_location)
 
     click.echo("Restoring mysql")
+    for mysql_info in info.mysql:
+        restore_mysql_db(mysql_info, dump_location)
 
-    for mysql_info in info["mysql"]:
-        options = mysql_options(mysql_info)
-        path = os.path.join(dump_location, "mysql_dump")
-        cmd = f"myloader {options} --overwrite-tables --directory {path}"
-        print(f"Running:\n{cmd.replace(mysql_info['password'], '')}")
-        if os.system(cmd) != 0:
-            click.echo("Error restoring mysql")
-            click.get_current_context().fail()
-
-    if "s3" in info:
-        click.echo("Restore S3")
-        path = os.path.join(dump_location, "s3.tar.gz")
-        s3_host = info["s3"]["host"]
-        s3_access_key = info["s3"]["access_key"]
-        s3_secret_key = info["s3"]["secret_key"]
-        s3_https = info["s3"]["https"]
-        restore_s3(s3_host, s3_access_key, s3_secret_key, path, s3_https)
-
-
-def mysql_options(mysql_info):
-    """Return a string to be used with mydumper/myloader
-    given an mysql `info` dict.
-    """
-    result = (
-        f"--host {mysql_info['host']} --user {mysql_info['user']} "
-        f"--password {mysql_info['password']} --port {mysql_info['port']} "
-    )
-    if "dbname" in mysql_info:
-        result += f" -B {mysql_info['dbname']} "
-    return result
-
-
-def mongo_options(mongo_info):
-    """Return a string to be used with mydumper/myloader
-    given an mysql `info` dict.
-    """
-    mongo_host = mongo_info["host"]
-    mongo_port = mongo_info["port"]
-    mongo_user = mongo_info["user"]
-    mongo_password = mongo_info["password"]
-    mongo_db  = mongo_info["dbname"]
-
-    options = (
-        f"--host={mongo_host}:{mongo_port} "
-        f"--db={mongo_db} "
-        f"--username={mongo_user} "
-        f"--password={mongo_password} "
-        f"--authenticationDatabase=admin"
-    )
-    return options
+    click.echo("Restoring S3")
+    if info.s3 is not None:
+        dump_path = os.path.join(dump_location, "s3.tar.gz")
+        restore_s3(
+            info.s3.host,
+            info.s3.access_key,
+            info.s3.secret_key,
+            dump_path,
+            info.s3.https,
+        )
