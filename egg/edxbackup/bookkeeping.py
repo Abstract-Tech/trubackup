@@ -10,6 +10,7 @@ import pendulum
 from pendulum.exceptions import ParserError
 from swiftclient.service import SwiftUploadObject
 
+from edxbackup.config import EdxbackupConfig
 from edxbackup.options import dbconfig_path_option
 from edxbackup.options import dump_location_option
 from edxbackup.retention import retention_from_conf
@@ -34,8 +35,8 @@ def remove_old(dump_location, dbconfig_path, local, remote_swift):
 
 
 def remove_old_remote_swift(dbconfig_path):
-    info = json.load(click.open_file(dbconfig_path))
-    container = info["swift"]["container"]
+    info = EdxbackupConfig(**json.load(click.open_file(dbconfig_path)))
+    container = info.swift.container
     with getSwiftService(info) as swift:
         retention_policy = swift_load_retention_policy(swift, info)
         if retention_policy is None:
@@ -54,7 +55,7 @@ def remove_old_remote_swift(dbconfig_path):
 
 
 def swift_load_retention_policy(swift, info):
-    container = info["swift"]["container"]
+    container = info.swift.container
     with tempfile.TemporaryDirectory() as tmp:
         dest = str(Path(tmp) / "retention_policy.json")
         res = tuple(
@@ -67,7 +68,7 @@ def swift_load_retention_policy(swift, info):
 
 
 def swift_create_default_retention_policy(swift, info):
-    container = info["swift"]["container"]
+    container = info.swift.container
     objects = [
         SwiftUploadObject(
             io.BytesIO(json.dumps(DEFAULT_RETENTION_POLICY).encode()),

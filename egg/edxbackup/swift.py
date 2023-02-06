@@ -10,8 +10,7 @@ import swiftclient.service
 def getSwiftService(info):
     """Given a configuration object, prepare a Swift service.
     """
-    swift_info = info["swift"]
-    os.environ.update(swift_info["env"])
+    os.environ.update(info.swift.env)
     # Note that swiftclient builds its options at import time.
     # We force repopulating them after setting the environment
     swiftclient.service._default_global_options = (

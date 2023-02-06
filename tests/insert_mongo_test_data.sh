@@ -1,12 +1,8 @@
 #!/bin/sh
 
-if [ ! -z "$MONGO_USER" ] ; then
-    MONGO_OPTS="${MONGO_OPTS} -u ${MONGO_USER}"
-fi
-if [ ! -z "$MONGO_PASSWORD" ] ; then
-    MONGO_OPTS="${MONGO_OPTS} -u ${MONGO_PASSWORD}"
-fi
+set -x
 
+MONGO_OPTS="-u ${MONGO_USER} -p${MONGO_PASSWORD} --authenticationDatabase admin"
 
 SCRIPT='
 db.inventory.insert({ item: "journal", qty: 25, tags: ["blank", "red"], size: { h: 14, w: 21, uom: "cm" } });

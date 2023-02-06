@@ -5,12 +5,12 @@
       "host": "127.0.0.1",
       "user": "root",
       "password": "foobar",
-      "port": "3306"
+      "port": "3309"
     }
   ],
   "mongo": [
     {
-      "dbname": "test",
+      "dbname": "edxapp",
       "host": "localhost",
       "user": "root",
       "password": "foobar",

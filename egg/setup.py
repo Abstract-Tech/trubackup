@@ -21,6 +21,7 @@ setup(
         "python-keystoneclient",
         "terminaltables",
         "minio",
+        "pydantic",
     ],
     entry_points={"console_scripts": ["edxbackup=edxbackup.cli:main"]},
 )
