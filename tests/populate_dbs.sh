@@ -1,11 +1,11 @@
 #!/bin/sh
 
 DIR=$(dirname "$(readlink -f "$0")")
-. ${DIR}/variables.sh
+. ${DIR}/.env
 
 # Prepare aliases for the scripts we'll run
-alias mysql='docker exec edxbackup_test_mysql mysql'
-alias mongo='docker exec edxbackup_test_mongo mongo'
+alias mysql="docker-compose -f ${DIR}/docker-compose.yml exec -T mysql mysql"
+alias mongo="docker-compose -f ${DIR}/docker-compose.yml exec -T mongo mongo"
 
 # Run the scripts
 . ${DIR}/insert_mongo_test_data.sh

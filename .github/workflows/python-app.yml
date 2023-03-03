@@ -15,6 +15,7 @@ permissions:
 env:
   MYSQL_VERSION: 5.6.36
   MONGO_VERSION: 3.2.16
+  DOCKER_IMAGE: abstract2tech/edxbackup
 
 jobs:
   build-n-test:
@@ -28,7 +29,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install flake8 pytest
+        pip install flake8 pytest docker-compose
+        pip install -r ./egg/requirements.txt
         pip install ./egg
     - name: Lint with flake8
       run: |
@@ -36,7 +38,7 @@ jobs:
         flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
         # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-    - name: Start keystone & swift
+    - name: Start keystone
       run: |
         tests/start_swift_server.sh
     - name: Test with pytest
@@ -44,7 +46,8 @@ jobs:
         pytest
     - name: Build image
       run: |
-        make build-image
+        docker build . -t $DOCKER_IMAGE:${{ github.sha }}
+        echo $DOCKER_IMAGE:${{ github.sha }} > build-image
     - name: Test dump
       run: |
         make test-dump

@@ -11,8 +11,10 @@ from typing import Tuple
 from click.testing import CliRunner
 from swiftclient.service import SwiftUploadObject
 
+from edxbackup.config import EdxbackupConfig
 
-BASE_CONFIG = json.loads((Path(__file__).parent / "dump_conf.json").read_text())
+
+BASE_CONFIG = EdxbackupConfig(**json.loads((Path(__file__).parent / "dump_conf.json").read_text()))
 
 
 def test_remove_old_local(tmp_path):
@@ -83,9 +85,9 @@ def get_config_for(tmp_path, container):
     to the given one, save to a temp file and and return its path.
     """
     config = deepcopy(BASE_CONFIG)
-    config["swift"]["container"] = container
+    config.swift.container = container
     config_file = tmp_path / "config.json"
-    config_file.write_text(json.dumps(config))
+    config_file.write_text(json.dumps(config.dict()))
     return str(config_file)
 
 
