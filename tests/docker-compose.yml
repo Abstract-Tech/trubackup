@@ -7,7 +7,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
@@ -20,9 +20,19 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-p${MYSQL_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 20
+
+  minio:
+    image: "quay.io/minio/minio:${MINIO_VERSION}"
+    environment:
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+    command: "server --address 0.0.0.0:9000 --console-address 0.0.0.0:9001 /data"
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"

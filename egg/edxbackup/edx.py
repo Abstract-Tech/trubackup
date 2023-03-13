@@ -7,15 +7,13 @@ import sys
 from functools import partial
 import click
 
-from swiftclient.service import SwiftUploadObject
-
 from edxbackup.config import EdxbackupConfig
 from edxbackup.options import dbconfig_path_option
 from edxbackup.options import dump_location_option
 from edxbackup.mysql import dump_mysql_db, restore_mysql_db
 from edxbackup.mongo import dump_mongo_db, restore_mongo_db
-from edxbackup.swift import getSwiftService
 from edxbackup.s3 import dump_s3, restore_s3
+from edxbackup import rclone
 
 
 @dump_location_option(
@@ -52,28 +50,13 @@ def dump(dump_location, dbconfig_path):
         )
 
     click.echo("Uploading dump")
-    if info.swift is not None:
-        to_upload = []
-        for filepath in iglob(f"{output_dir}/**", recursive=True):
-            if not os.path.isfile(filepath):
-                continue
-            to_upload.append(
-                SwiftUploadObject(
-                    filepath, object_name=f"{'/'.join(filepath.split('/')[2:])}"
-                )
-            )
-        print(f"Uploading via SWIFT to container {info.swift.container}")
-        with getSwiftService(info) as swift:
-            # Consume the return value of swift.upload
-            problems = [
-                el
-                for el in swift.upload(info.swift.container, to_upload)
-                if not el["success"] and el["action"] != "create_container"
-            ]
-        if problems:
-            print("There were problems uploading the dump via swift")
-            print(problems)
-            sys.exit(-1)
+    if info.upload is not None:
+        try:
+            rclone.copy(output_dir, info.upload.remote_name, info.upload.destination)
+        except RuntimeError:
+            click.echo("Failed to upload dump")
+        else:
+            click.echo("Successfully uploaded dump")
 
 
 @dump_location_option(type=click.Path(exists=True, file_okay=False, dir_okay=True))

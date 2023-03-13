@@ -27,7 +27,7 @@ FROM python:3.11-alpine3.17
 COPY --from=dev /wheelhouse /wheelhouse
 COPY egg /egg
 
-RUN apk --no-cache add glib zlib pcre openssl mariadb-connector-c mongodb-tools
+RUN apk --no-cache add glib zlib pcre openssl mariadb-connector-c mongodb-tools rclone
 
 RUN pip install --no-cache-dir -U pip && \
     pip install --no-cache-dir -e /egg --find-links /wheelhouse
@@ -39,3 +39,5 @@ CMD /usr/local/bin/edxbackup
 COPY --from=mydumper /opt/mydumper-src/mydumper /opt/mydumper-src/myloader /usr/bin/
 
 CMD ["/usr/sbin/crond", "-f", "-L", "8"]
+
+ENV XDG_CONFIG_HOME=/etc

@@ -17,8 +17,6 @@ setup(
     install_requires=[
         "click",
         "pendulum",
-        "python-swiftclient",
-        "python-keystoneclient",
         "terminaltables",
         "minio",
         "pydantic",

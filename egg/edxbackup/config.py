@@ -56,13 +56,13 @@ class S3Config(BaseModel):
     https: bool
 
 
-class SwiftConfig(BaseModel):
-    env: Dict[str, str]
-    container: str
+class UploadConfig(BaseModel):
+    remote_name: str
+    destination: str
 
 
 class EdxbackupConfig(BaseModel):
     mysql: List[MysqlConfig]
     mongo: List[MongoConfig]
     s3: Optional[S3Config]
-    swift: Optional[SwiftConfig]
+    upload: Optional[UploadConfig]
