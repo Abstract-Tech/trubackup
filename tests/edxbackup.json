@@ -1,0 +1,30 @@
+{
+	"prefix": "test",
+	"mongo": [
+		{
+			"host": "127.0.0.1",
+			"port": 37017,
+			"user": "root",
+			"password": "foobar",
+			"database": "test"
+		}
+	],
+	"mysql": [
+		{
+			"host": "127.0.0.1",
+			"port": 13306,
+			"user": "root",
+			"password": "foobar",
+			"database": "test"
+		}
+	],
+	"s3": [
+		{
+			"host": "127.0.0.1:19000",
+			"https": false,
+			"access_key": "access_key",
+			"secret_key": "secret_key",
+			"bucket": "test"
+		}
+	]
+}

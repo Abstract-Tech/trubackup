@@ -1,41 +1,28 @@
-FROM alpine:3.17 as mydumper
+FROM python:3.11-slim-bullseye
 
-ENV PACKAGES="mariadb-client" \
-    LIB_PACKAGES="glib-dev mariadb-dev zlib-dev pcre-dev openssl-dev" \
-    BUILD_PACKAGES="cmake build-base git"
+RUN mkdir /app
+WORKDIR /app
 
-RUN apk --no-cache add \
-          $PACKAGES \
-          $BUILD_PACKAGES \
-          $LIB_PACKAGES
-RUN git clone --single-branch --branch v0.9.5 https://github.com/maxbube/mydumper.git /opt/mydumper-src/
-RUN cd /opt/mydumper-src/ && \
-    cmake . && \
-    make
+ARG mydumper_version=0.14.3-1
+ARG mongodb_version=100.7.0
+ARG restic_version=0.15.1
 
-# Compile our egg dependencies (swift/keystone)
-FROM python:3.11-alpine3.17 as dev
-RUN apk add linux-headers gcc musl-dev
-COPY egg /egg
+ENV MYDUMPER_VERSION=${mydumper_version}
+ENV MONGOTOOLS_VERSION=${mongodb_version}
+ENV RESTIC_VERSION=${restic_version}
 
-RUN pip install --no-cache-dir -U pip && \
-    pip --no-cache-dir wheel --wheel-dir=/wheelhouse /egg && \
-    `# Only keep binary wheels` \
-    rm /wheelhouse/*-none-*
+RUN apt-get update && apt-get install -y bzip2 curl
 
-FROM python:3.11-alpine3.17
-COPY --from=dev /wheelhouse /wheelhouse
-COPY egg /egg
+RUN curl -LO https://github.com/mydumper/mydumper/releases/download/v${MYDUMPER_VERSION}/mydumper_${MYDUMPER_VERSION}-zstd.bullseye_amd64.deb && \
+    apt install -y ./mydumper*.deb && rm ./mydumper*.deb
 
-RUN apk --no-cache add glib zlib pcre openssl mariadb-connector-c mongodb-tools
+RUN curl -LO https://fastdl.mongodb.org/tools/db/mongodb-database-tools-debian11-x86_64-${MONGOTOOLS_VERSION}.deb && \
+    apt install -y ./mongodb-database-tools*.deb && rm ./mongodb-database-tools*.deb
 
-RUN pip install --no-cache-dir -U pip && \
-    pip install --no-cache-dir -e /egg --find-links /wheelhouse
-# Uncomment to debug
-# RUN pip install --no-cache-dir pdbpp
+RUN curl -L https://github.com/restic/restic/releases/download/v${RESTIC_VERSION}/restic_${RESTIC_VERSION}_linux_amd64.bz2 | \
+	bunzip2 > /usr/local/bin/restic && chmod +x /usr/local/bin/restic
 
-CMD /usr/local/bin/edxbackup
+COPY requirements.txt pyproject.toml /app/
+COPY edxbackup /app/edxbackup
 
-COPY --from=mydumper /opt/mydumper-src/mydumper /opt/mydumper-src/myloader /usr/bin/
-
-CMD ["/usr/sbin/crond", "-f", "-L", "8"]
+RUN pip install -r /app/requirements.txt && pip install /app
