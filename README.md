@@ -4,7 +4,7 @@ edxbackup is a thin wrapper around [restic](https://restic.net/).
 
 edxbackup supports backing up MySQL (using [mydumper](https://github.com/mydumper/mydumper)), MongoDB (using mongodb-tools) and S3 buckets (using minio-client python module).
 
-edxbackup is configured using JSON file and a couple of command-line flags
+edxbackup is configured using JSON file and environment variables
 
 edxbackup is a CLI tool that supports following operations:
 
