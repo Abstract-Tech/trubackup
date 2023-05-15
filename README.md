@@ -12,3 +12,5 @@ edxbackup is a CLI tool that supports following operations:
 2. list: prints a list of available backup groups followed by backup date;
 2. show: prints contents of specific backup group
 3. restore: performs restore from given backup group.
+
+To run edxbackup regularly, you can use systemd service and timer in systemd/ directory.
