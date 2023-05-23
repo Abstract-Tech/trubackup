@@ -81,7 +81,7 @@ pytzdata==2020.1
     # via pendulum
 pyyaml==6.0
     # via oslo-config
-requests==2.28.2
+requests==2.31.0
     # via
     #   keystoneauth1
     #   oslo-config
