@@ -6,3 +6,7 @@ __pycache__
 build-image
 
 .direnv
+
+# Devenv
+.devenv*
+devenv.local.nix

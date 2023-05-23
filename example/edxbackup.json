@@ -1,0 +1,36 @@
+{
+	"prefix": "example",
+	"mongo": [
+		{
+			"host": "mongo",
+			"port": 27017,
+			"user": "root",
+			"password": "mongo_password",
+			"database": "first"
+		}, {
+			"host": "mongo",
+			"port": 27017,
+			"user": "root",
+			"password": "mongo_password",
+			"database": "second"
+		}
+	],
+	"mysql": [
+		{
+			"host": "mysql",
+			"port": 3306,
+			"user": "root",
+			"password": "password",
+			"database": "db"
+		}
+	],
+	"s3": [
+		{
+			"host": "minio:19000",
+			"https": false,
+			"access_key": "access_key",
+			"secret_key": "secret_key",
+			"bucket": "bucket"
+		}
+	]
+}

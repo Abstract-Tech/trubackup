@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup with edxbackup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker run -v /etc/edxbackup.json:/etc/edxbackup.json --rm abstract2tech/edxbackup:<version> edxbackup backup
+Environment="RESTIC_REPOSITORY=<FILL YOUR OWN>"
+Environment="RESTIC_PASSWORD=<FILL YOUR OWN>"

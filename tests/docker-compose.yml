@@ -1,13 +1,20 @@
-version: '3.9'
+version: "3.7"
 
 services:
+  restic-rest-server:
+    image: "restic/rest-server:0.11.0"
+    environment:
+      DISABLE_AUTHENTICATION: "1"
+    ports:
+      - "127.0.0.1:18000:8000"
+
   mongo:
-    image: "mongo:${MONGO_VERSION}"
+    image: "mongo:4"
     environment:
       MONGO_INITDB_ROOT_USERNAME: "${MONGO_USER}"
       MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
     ports:
-      - "27017:27017"
+      - "37017:27017"
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongo mongo:27017/test --quiet
       interval: 10s
@@ -16,13 +23,23 @@ services:
       start_period: 40s
 
   mysql:
-    image: "mysql:${MYSQL_VERSION}"
+    image: "mysql:5.7"
     environment:
       MYSQL_ROOT_PASSWORD: "${MYSQL_PASSWORD}"
     ports:
-      - "3306:3306"
+      - "127.0.0.1:13306:3306"
     healthcheck:
       test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-p${MYSQL_PASSWORD}"]
       interval: 5s
       timeout: 5s
       retries: 20
+
+  minio:
+    image: "quay.io/minio/minio:RELEASE.2023-04-07T05-28-58Z"
+    environment:
+      MINIO_ACCESS_KEY: "${MINIO_ACCESS_KEY}"
+      MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
+    command: "server --address 0.0.0.0:9000 --console-address 0.0.0.0:9001 /data"
+    ports:
+      - "127.0.0.1:19000:9000"
+      - "127.0.0.1:19001:9001"
