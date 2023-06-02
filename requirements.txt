@@ -7,10 +7,18 @@
 certifi==2022.12.7
     # via minio
 click==8.1.3
-    # via edxbackup (pyproject.toml)
+    # via
+    #   edxbackup (pyproject.toml)
+    #   s3ball
 minio==7.1.14
-    # via edxbackup (pyproject.toml)
+    # via
+    #   edxbackup (pyproject.toml)
+    #   s3ball
 pydantic==1.10.7
+    # via
+    #   edxbackup (pyproject.toml)
+    #   s3ball
+s3ball==0.1.0
     # via edxbackup (pyproject.toml)
 typing-extensions==4.5.0
     # via pydantic

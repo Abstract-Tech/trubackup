@@ -13,7 +13,8 @@ license = {text = "Apache-2.0"}
 dependencies = [
     "click",
     "minio",
-    "pydantic"
+    "pydantic",
+	"s3ball",
 ]
 dynamic = ["version", "readme"]
 
