@@ -23,7 +23,7 @@ find = {}
 
 [tool.setuptools.dynamic]
 version = {attr = "edxbackup.VERSION"}
-readme = {file = ["README.md"]}
+readme = {file = ["README.rst"]}
 
 [project.scripts]
 edxbackup = "edxbackup.cli:main"
