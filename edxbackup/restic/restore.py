@@ -1,9 +1,6 @@
 from subprocess import PIPE
 from subprocess import Popen
 
-from minio import Minio
-import tarfile
-
 
 def restore_stream(restore_args: list[str], snapshot_id: str, path: str) -> bool:
     download_args = [

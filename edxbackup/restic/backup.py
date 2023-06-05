@@ -1,9 +1,6 @@
 from datetime import datetime
 from subprocess import PIPE
 from subprocess import Popen
-import tarfile
-
-from minio import Minio
 
 
 def backup_stdin(
