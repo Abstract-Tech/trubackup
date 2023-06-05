@@ -25,4 +25,6 @@ RUN curl -L https://github.com/restic/restic/releases/download/v${RESTIC_VERSION
 COPY requirements.txt pyproject.toml /app/
 COPY edxbackup /app/edxbackup
 
+COPY contrib/delete_old.py /usr/local/bin/delete_old.py
+
 RUN pip install -r /app/requirements.txt && pip install /app
