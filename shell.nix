@@ -2,6 +2,6 @@
 
 pkgs.mkShell {
   buildInputs = with pkgs; [
-    gnumake gcc
+    python311
   ];
 }
