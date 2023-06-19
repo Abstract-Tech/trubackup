@@ -18,6 +18,15 @@
 			"database": "test"
 		}
 	],
+	"postgresql": [
+		{
+			"host": "127.0.0.1",
+			"port": 55432,
+			"user": "root",
+			"password": "foobar",
+			"database": "test"
+		}
+	],
 	"s3": [
 		{
 			"host": "127.0.0.1:19000",

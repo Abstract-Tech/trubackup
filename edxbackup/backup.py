@@ -1,6 +1,7 @@
 from edxbackup.config import EdxbackupConfig
 from edxbackup.mongo import dump_mongo_db
 from edxbackup.mysql import dump_mysql_db
+from edxbackup.postgresql import dump_postgresql_db
 from edxbackup.options import backup_time_option
 from edxbackup.options import config_path_option
 from edxbackup.s3 import dump_s3_bucket
@@ -37,6 +38,14 @@ def perform_backup(config, time) -> None:
         else:
             log_failure(
                 f"edxbackup failed to backup mysql database: {mysql_config.database}"
+            )
+
+    for postgresql_config in config.postgresql:
+        if dump_postgresql_db(postgresql_config, config.prefix, backup_id, time):
+            log_success(f"edxbackup backed up postgresql database: {postgresql_config.database}")
+        else:
+            log_failure(
+                f"edxbackup failed to backup postgresql database: {postgresql_config.database}"
             )
 
     for s3_config in config.s3:

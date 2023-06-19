@@ -9,6 +9,12 @@ class MysqlTarget(BaseModel):
     path: str
 
 
+class PostgresqlTarget(BaseModel):
+    id: str
+    db: str
+    path: str
+
+
 class MongoTarget(BaseModel):
     id: str
     db: str
@@ -28,6 +34,7 @@ class BackupContext(BaseModel):
     """
 
     mysql: list[MysqlTarget]
+    postgresql: list[PostgresqlTarget]
     mongo: list[MongoTarget]
     s3: list[S3Target]
 
@@ -43,6 +50,15 @@ def build_context(snapshots: list[ResticSnapshot]) -> BackupContext:
                 yield MysqlTarget(
                     id=snapshot.id,
                     db=tags_to_database("mysql", snapshot.tags),
+                    path=snapshot.paths[0],
+                )
+
+    def extract_postgresql(snapshots: list[ResticSnapshot]) -> Iterator[PostgresqlTarget]:
+        for snapshot in snapshots:
+            if "postgresql" in snapshot.tags:
+                yield PostgresqlTarget(
+                    id=snapshot.id,
+                    db=tags_to_database("postgresql", snapshot.tags),
                     path=snapshot.paths[0],
                 )
 
@@ -66,6 +82,7 @@ def build_context(snapshots: list[ResticSnapshot]) -> BackupContext:
 
     return BackupContext(
         mysql=list(extract_mysql(snapshots)),
+        postgresql=list(extract_postgresql(snapshots)),
         mongo=list(extract_mongo(snapshots)),
         s3=list(extract_s3(snapshots)),
     )
@@ -89,6 +106,17 @@ def get_mysql_target(context: BackupContext, database: str) -> MysqlTarget | Non
     for mysql_target in context.mysql:
         if mysql_target.db == database:
             return mysql_target
+
+    return None
+
+
+def get_postgresql_target(context: BackupContext, database: str) -> PostgresqlTarget | None:
+    """
+    Get PostgresqlTarget with matching db name from backup context
+    """
+    for postgresql_target in context.postgresql:
+        if postgresql_target.db == database:
+            return postgresql_target
 
     return None
 

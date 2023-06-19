@@ -2,10 +2,12 @@ from edxbackup.config import EdxbackupConfig
 from edxbackup.context import build_context
 from edxbackup.context import get_mongo_target
 from edxbackup.context import get_mysql_target
+from edxbackup.context import get_postgresql_target
 from edxbackup.context import get_s3_target
 from edxbackup.mongo import restore_mongo_db
 from edxbackup.mysql import restore_mysql_db
 from edxbackup.options import config_path_option
+from edxbackup.postgresql import restore_postgresql_db
 from edxbackup.restic.snapshot import list_snapshots
 from edxbackup.s3 import restore_s3_bucket
 from edxbackup.utils import log_failure
@@ -51,6 +53,19 @@ def perform_restore(config, backup_id) -> None:
         else:
             log_failure(
                 f"edxbackup failed to restore mysql database (no snapshot): {mysql_db}"
+            )
+
+    for postgresql_config in config.postgresql:
+        postgresql_db = postgresql_config.database
+        postgresql_target = get_postgresql_target(backup_context, postgresql_db)
+        if postgresql_target is not None:
+            if restore_postgresql_db(postgresql_config, postgresql_target):
+                log_success(f"edxbackup restored postgresql database: {postgresql_db}")
+            else:
+                log_failure(f"edxbackup failed to restore postgresql database: {postgresql_db}")
+        else:
+            log_failure(
+                f"edxbackup failed to restore postgresql database (no snapshot): {postgresql_db}"
             )
 
     for s3_config in config.s3:

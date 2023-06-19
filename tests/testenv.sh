@@ -1,6 +1,9 @@
 export MYSQL_USER=root
 export MYSQL_PASSWORD=foobar
 
+export POSTGRES_USER=root
+export POSTGRES_PASSWORD=foobar
+
 export MONGO_USER=root
 export MONGO_PASSWORD=foobar
 

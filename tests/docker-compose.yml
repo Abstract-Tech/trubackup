@@ -34,6 +34,14 @@ services:
       timeout: 5s
       retries: 20
 
+  postgresql:
+    image: "postgres:13.4-alpine"
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+    ports:
+      - "127.0.0.1:55432:5432"
+
   minio:
     image: "quay.io/minio/minio:RELEASE.2023-04-07T05-28-58Z"
     environment:

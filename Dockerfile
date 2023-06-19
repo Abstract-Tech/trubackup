@@ -11,7 +11,7 @@ ENV MYDUMPER_VERSION=${mydumper_version}
 ENV MONGOTOOLS_VERSION=${mongodb_version}
 ENV RESTIC_VERSION=${restic_version}
 
-RUN apt-get update && apt-get install -y bzip2 curl
+RUN apt-get update && apt-get install -y bzip2 curl postgresql-client-common postgresql-client-13
 
 RUN curl -LO https://github.com/mydumper/mydumper/releases/download/v${MYDUMPER_VERSION}/mydumper_${MYDUMPER_VERSION}-zstd.bullseye_amd64.deb && \
     apt install -y ./mydumper*.deb && rm ./mydumper*.deb
