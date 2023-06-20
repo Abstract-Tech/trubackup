@@ -21,7 +21,7 @@ class MongoConfig(BaseModel):
         """
         Return a Popen args list to be used with mongodump CLI tool
         """
-        options =  [
+        options = [
             "--archive",
             f"--host={self.host}:{self.port}",
             f"--db={self.database}",
@@ -36,7 +36,6 @@ class MongoConfig(BaseModel):
             ]
 
         return options
-
 
     def to_restore_options(self) -> list[str]:
         """

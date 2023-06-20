@@ -53,7 +53,9 @@ def build_context(snapshots: list[ResticSnapshot]) -> BackupContext:
                     path=snapshot.paths[0],
                 )
 
-    def extract_postgresql(snapshots: list[ResticSnapshot]) -> Iterator[PostgresqlTarget]:
+    def extract_postgresql(
+        snapshots: list[ResticSnapshot],
+    ) -> Iterator[PostgresqlTarget]:
         for snapshot in snapshots:
             if "postgresql" in snapshot.tags:
                 yield PostgresqlTarget(
@@ -110,7 +112,9 @@ def get_mysql_target(context: BackupContext, database: str) -> MysqlTarget | Non
     return None
 
 
-def get_postgresql_target(context: BackupContext, database: str) -> PostgresqlTarget | None:
+def get_postgresql_target(
+    context: BackupContext, database: str
+) -> PostgresqlTarget | None:
     """
     Get PostgresqlTarget with matching db name from backup context
     """

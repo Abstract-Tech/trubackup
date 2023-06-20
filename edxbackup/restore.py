@@ -62,7 +62,9 @@ def perform_restore(config, backup_id) -> None:
             if restore_postgresql_db(postgresql_config, postgresql_target):
                 log_success(f"edxbackup restored postgresql database: {postgresql_db}")
             else:
-                log_failure(f"edxbackup failed to restore postgresql database: {postgresql_db}")
+                log_failure(
+                    f"edxbackup failed to restore postgresql database: {postgresql_db}"
+                )
         else:
             log_failure(
                 f"edxbackup failed to restore postgresql database (no snapshot): {postgresql_db}"

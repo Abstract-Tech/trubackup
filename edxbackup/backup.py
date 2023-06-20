@@ -42,7 +42,9 @@ def perform_backup(config, time) -> None:
 
     for postgresql_config in config.postgresql:
         if dump_postgresql_db(postgresql_config, config.prefix, backup_id, time):
-            log_success(f"edxbackup backed up postgresql database: {postgresql_config.database}")
+            log_success(
+                f"edxbackup backed up postgresql database: {postgresql_config.database}"
+            )
         else:
             log_failure(
                 f"edxbackup failed to backup postgresql database: {postgresql_config.database}"

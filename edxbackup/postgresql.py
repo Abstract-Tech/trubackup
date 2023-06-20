@@ -25,7 +25,7 @@ class PostgresqlConfig(BaseModel):
             f"--host={self.host}",
             f"--port={self.port}",
             f"--username={self.user}",
-            f"--format=c",
+            "--format=c",
             f"{self.database}",
         ]
 
@@ -39,12 +39,15 @@ class PostgresqlConfig(BaseModel):
             f"--host={self.host}",
             f"--port={self.port}",
             f"--username={self.user}",
-            f"--dbname=postgres",
+            "--dbname=postgres",
         ]
 
 
 def dump_postgresql_db(
-    postgresql_info: PostgresqlConfig, prefix: str, backup_id: str, backup_time: datetime
+    postgresql_info: PostgresqlConfig,
+    prefix: str,
+    backup_id: str,
+    backup_time: datetime,
 ) -> bool:
     backup_args = [
         "pg_dump",
@@ -64,7 +67,9 @@ def dump_postgresql_db(
         del os.environ["PGPASSWORD"]
 
 
-def restore_postgresql_db(postgresql_info: PostgresqlConfig, target: PostgresqlTarget) -> bool:
+def restore_postgresql_db(
+    postgresql_info: PostgresqlConfig, target: PostgresqlTarget
+) -> bool:
     restore_args = [
         "pg_restore",
     ] + postgresql_info.to_restore_options()
