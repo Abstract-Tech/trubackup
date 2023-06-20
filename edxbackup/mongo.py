@@ -13,35 +13,50 @@ from pydantic import BaseModel
 class MongoConfig(BaseModel):
     host: str
     port: int
-    user: str
-    password: str
+    user: str | None
+    password: str | None
     database: str
 
     def to_backup_options(self) -> list[str]:
         """
         Return a Popen args list to be used with mongodump CLI tool
         """
-        return [
+        options =  [
             "--archive",
             f"--host={self.host}:{self.port}",
-            f"--username={self.user}",
-            f"--password={self.password}",
             f"--db={self.database}",
-            "--authenticationDatabase=admin",
         ]
+
+        has_auth = self.user is not None and self.password is not None
+        if has_auth:
+            options += [
+                f"--username={self.user}",
+                f"--password={self.password}",
+                "--authenticationDatabase=admin",
+            ]
+
+        return options
+
 
     def to_restore_options(self) -> list[str]:
         """
         Return a Popen args list to be used with mongorestore CLI tool
         """
-        return [
+        options = [
             "--archive",
             "--drop",
             f"--host={self.host}:{self.port}",
-            f"--username={self.user}",
-            f"--password={self.password}",
-            "--authenticationDatabase=admin",
         ]
+
+        has_auth = self.user is not None and self.password is not None
+        if has_auth:
+            options += [
+                f"--username={self.user}",
+                f"--password={self.password}",
+                "--authenticationDatabase=admin",
+            ]
+
+        return options
 
 
 def dump_mongo_db(
