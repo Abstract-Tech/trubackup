@@ -16,12 +16,13 @@ class MysqlConfig(BaseModel):
     user: str
     password: str
     database: str
+    database_to: str | None
 
     def to_backup_options(self) -> list[str]:
         """
         Return a Popen args list to be used with mydumper CLI tool
         """
-        return [
+        options = [
             "--stream",
             f"--host={self.host}",
             f"--port={self.port}",
@@ -29,6 +30,17 @@ class MysqlConfig(BaseModel):
             f"--password={self.password}",
             f"--database={self.database}",
         ]
+
+        if self.database_to is not None:
+            options += [
+                f"--database={self.database_to}",
+            ]
+        else:
+            options += [
+                f"--database={self.database}",
+            ]
+
+        return options
 
     def to_restore_options(self) -> list[str]:
         """

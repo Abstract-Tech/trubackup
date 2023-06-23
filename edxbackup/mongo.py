@@ -16,6 +16,7 @@ class MongoConfig(BaseModel):
     user: str | None
     password: str | None
     database: str
+    database_to: str | None
 
     def to_backup_options(self) -> list[str]:
         """
@@ -26,6 +27,16 @@ class MongoConfig(BaseModel):
             f"--host={self.host}:{self.port}",
             f"--db={self.database}",
         ]
+
+        if self.database_to is not None:
+            options += [
+                f"--nsFrom={self.database}.*",
+                f"--nsTo={self.database_to}.*",
+            ]
+        else:
+            options += [
+                f"--db={self.database}",
+            ]
 
         has_auth = self.user is not None and self.password is not None
         if has_auth:
