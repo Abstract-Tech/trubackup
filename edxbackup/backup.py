@@ -21,6 +21,7 @@ def perform_backup(config, time) -> None:
     """
     config = EdxbackupConfig.parse_file(config)
     backup_id = str(uuid.uuid1())
+    backup_success = True
 
     log_success(f"edxbackup backup started: {backup_id}")
 
@@ -28,6 +29,7 @@ def perform_backup(config, time) -> None:
         if dump_mongo_db(mongo_config, config.prefix, backup_id, time):
             log_success(f"edxbackup backed up mongo database: {mongo_config.database}")
         else:
+            backup_success = False
             log_failure(
                 f"edxbackup failed to backup mongo database: {mongo_config.database}"
             )
@@ -36,6 +38,7 @@ def perform_backup(config, time) -> None:
         if dump_mysql_db(mysql_config, config.prefix, backup_id, time):
             log_success(f"edxbackup backed up mysql database: {mysql_config.database}")
         else:
+            backup_success = False
             log_failure(
                 f"edxbackup failed to backup mysql database: {mysql_config.database}"
             )
@@ -46,6 +49,7 @@ def perform_backup(config, time) -> None:
                 f"edxbackup backed up postgresql database: {postgresql_config.database}"
             )
         else:
+            backup_success = False
             log_failure(
                 f"edxbackup failed to backup postgresql database: {postgresql_config.database}"
             )
@@ -54,6 +58,11 @@ def perform_backup(config, time) -> None:
         if dump_s3_bucket(s3_config, config.prefix, backup_id, time):
             log_success(f"edxbackup backed up S3 bucket: {s3_config.bucket}")
         else:
+            backup_success = False
             log_failure(f"edxbackup failed to backup S3 bucket: {s3_config.bucket}")
 
-    log_success(f"edxbackup backup finished\n{backup_id}")
+    if backup_success:
+        log_success(f"edxbackup backup finished\n{backup_id}")
+    else:
+        log_failure(f"edxbackup backup finished with errors\n{backup_id}")
+        exit(1)

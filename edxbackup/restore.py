@@ -27,6 +27,7 @@ def perform_restore(config, backup_id) -> None:
 
     snapshots = list_snapshots(backup_id)
     backup_context = build_context(snapshots)
+    restore_success = True
 
     log_success(f"edxbackup restore started: {backup_id}")
     for mongo_config in config.mongo:
@@ -36,8 +37,10 @@ def perform_restore(config, backup_id) -> None:
             if restore_mongo_db(mongo_config, mongo_target):
                 log_success(f"edxbackup restored mongo database: {mongo_db}")
             else:
+                restore_success = False
                 log_failure(f"edxbackup failed to restore mongo database: {mongo_db}")
         else:
+            restore_success = False
             log_failure(
                 f"edxbackup failed to restore mongo database (no snapshot): {mongo_db}"
             )
@@ -49,8 +52,10 @@ def perform_restore(config, backup_id) -> None:
             if restore_mysql_db(mysql_config, mysql_target):
                 log_success(f"edxbackup restored mysql database: {mysql_db}")
             else:
+                restore_success = False
                 log_failure(f"edxbackup failed to restore mysql database: {mysql_db}")
         else:
+            restore_success = False
             log_failure(
                 f"edxbackup failed to restore mysql database (no snapshot): {mysql_db}"
             )
@@ -62,10 +67,12 @@ def perform_restore(config, backup_id) -> None:
             if restore_postgresql_db(postgresql_config, postgresql_target):
                 log_success(f"edxbackup restored postgresql database: {postgresql_db}")
             else:
+                restore_success = False
                 log_failure(
                     f"edxbackup failed to restore postgresql database: {postgresql_db}"
                 )
         else:
+            restore_success = False
             log_failure(
                 f"edxbackup failed to restore postgresql database (no snapshot): {postgresql_db}"
             )
@@ -77,10 +84,16 @@ def perform_restore(config, backup_id) -> None:
             if restore_s3_bucket(s3_config, s3_target):
                 log_success(f"edxbackup restored S3 bucket: {s3_bucket}")
             else:
-                log_success(f"edxbackup failed to restore S3 bucket: {s3_bucket}")
+                restore_success = False
+                log_failure(f"edxbackup failed to restore S3 bucket: {s3_bucket}")
         else:
+            restore_success = False
             log_failure(
                 f"edxbackup failed to restore S3 bucket (no snapshot): {s3_bucket}"
             )
 
-    log_success(f"edxbackup restore finished\n{backup_id}")
+    if restore_success:
+        log_success(f"edxbackup restore finished\n{backup_id}")
+    else:
+        log_failure(f"edxbackup restore finished with errors\n{backup_id}")
+        exit(1)
