@@ -3,7 +3,7 @@ FROM python:3.11-slim-bullseye
 RUN mkdir /app
 WORKDIR /app
 
-ARG mydumper_version=0.15.1-3
+ARG mydumper_version=0.14.3-1
 ARG mongodb_version=100.7.0
 ARG restic_version=0.16.0
 
