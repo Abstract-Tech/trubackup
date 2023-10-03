@@ -20,5 +20,5 @@ s3ball==0.1.1
     # via edxbackup (pyproject.toml)
 typing-extensions==4.5.0
     # via pydantic
-urllib3==1.26.15
+urllib3==1.26.17
     # via minio
