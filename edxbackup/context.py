@@ -27,6 +27,11 @@ class S3Target(BaseModel):
     path: str
 
 
+class LocalFSTarget(BaseModel):
+    id: str
+    path: str
+
+
 class BackupContext(BaseModel):
     """
     A class to process and store restic snapshot ids categorized by different
@@ -37,6 +42,7 @@ class BackupContext(BaseModel):
     postgresql: list[PostgresqlTarget]
     mongo: list[MongoTarget]
     s3: list[S3Target]
+    localfs: list[LocalFSTarget]
 
 
 def build_context(snapshots: list[ResticSnapshot]) -> BackupContext:
@@ -82,11 +88,20 @@ def build_context(snapshots: list[ResticSnapshot]) -> BackupContext:
                     path=snapshot.paths[0],
                 )
 
+    def extract_localfs(snapshots: list[ResticSnapshot]) -> Iterator[LocalFSTarget]:
+        for snapshot in snapshots:
+            if "s3" in snapshot.tags:
+                yield LocalFSTarget(
+                    id=snapshot.id,
+                    path=snapshot.paths[0],
+                )
+
     return BackupContext(
         mysql=list(extract_mysql(snapshots)),
         postgresql=list(extract_postgresql(snapshots)),
         mongo=list(extract_mongo(snapshots)),
         s3=list(extract_s3(snapshots)),
+        localfs=list(extract_localfs(snapshots)),
     )
 
 

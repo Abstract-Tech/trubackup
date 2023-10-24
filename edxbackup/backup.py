@@ -5,6 +5,7 @@ from edxbackup.postgresql import dump_postgresql_db
 from edxbackup.options import backup_time_option
 from edxbackup.options import config_path_option
 from edxbackup.s3 import dump_s3_bucket
+from edxbackup.localfs import dump_local_fs
 from edxbackup.utils import log_failure
 from edxbackup.utils import log_success
 
@@ -60,6 +61,13 @@ def perform_backup(config, time) -> None:
         else:
             backup_success = False
             log_failure(f"edxbackup failed to backup S3 bucket: {s3_config.bucket}")
+
+    for localfs_config in config.localfs:
+        if dump_local_fs(localfs_config, backup_id, time):
+            log_success(f"edxbackup backed up local path: {localfs_config.path}")
+        else:
+            backup_success = False
+            log_failure(f"edxbackup failed to backup local path: {localfs_config.path}")
 
     if backup_success:
         log_success(f"edxbackup backup finished\n{backup_id}")

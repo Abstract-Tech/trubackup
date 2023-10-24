@@ -1,3 +1,4 @@
+from pathlib import Path
 from subprocess import PIPE
 from subprocess import Popen
 
@@ -19,3 +20,18 @@ def restore_stream(restore_args: list[str], snapshot_id: str, path: str) -> bool
     restore_process.wait()
 
     return (download_process.returncode + restore_process.returncode) == 0
+
+
+def restore_fs(local_path: Path, snapshot_id: str):
+    restore_args = [
+        "restic",
+        "restore",
+        snapshot_id,
+        "--target",
+        str(local_path.parent),
+    ]
+
+    restore_process = Popen(restore_args, stdout=PIPE)
+    restore_process.wait()
+
+    return restore_process.returncode == 0

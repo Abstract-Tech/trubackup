@@ -1,6 +1,20 @@
 from datetime import datetime
+from pathlib import Path
 from subprocess import PIPE
 from subprocess import Popen
+
+
+def date2str(date: datetime | None) -> str:
+    """
+    Convert datetime to format supported by restic
+
+    Returns "now" if date is None
+    """
+    str_date = "now"
+    if date is not None:
+        str_date = date.strftime("%Y-%m-%d %H:%M:%S")
+
+    return str_date
 
 
 def backup_stdin(
@@ -10,10 +24,7 @@ def backup_stdin(
     tags: list[str],
     date: datetime | None = None,
 ) -> bool:
-    str_date = "now"
-    if date is not None:
-        str_date = date.strftime("%Y-%m-%d %H:%M:%S")
-
+    str_date = date2str(date)
     upload_args = [
         "restic",
         "backup",
@@ -37,3 +48,28 @@ def backup_stdin(
     upload_process.wait()
 
     return (backup_process.returncode + upload_process.returncode) == 0
+
+
+def backup_fs(
+    path: Path,
+    hostname: str,
+    tags: list[str],
+    date: datetime | None = None,
+):
+    str_date = date2str(date)
+    upload_args = [
+        "restic",
+        "backup",
+        path,
+        "--host",
+        hostname,
+        "--tag",
+        ",".join(tags),
+        "--time",
+        str_date,
+    ]
+
+    upload_process = Popen(upload_args, stdout=PIPE)
+    upload_process.wait()
+
+    return upload_process.returncode == 0

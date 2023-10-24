@@ -1,5 +1,5 @@
-from pydantic import BaseModel
 from subprocess import check_output
+from pydantic import BaseModel
 
 import json
 
@@ -9,15 +9,17 @@ class ResticSnapshot(BaseModel):
     A model of restic snapshot as in `restic snapshots --json`
     """
 
-    time: str
-    parent: str | None
-    tree: str
-    paths: list[str]
-    hostname: str
-    username: str
-    tags: list[str]
+    time: str | None
+    parent: str | None = None
+    tree: str | None = None
+    paths: list[str] = None
+    hostname: str | None = None
+    username: str | None = None
+    tags: list[str] | None = None
     id: str
-    short_id: str
+    gid: int | None = None
+    program_version: str | None = None
+    short_id: str | None
 
 
 def list_snapshot_groups() -> dict[str, list[ResticSnapshot]]:

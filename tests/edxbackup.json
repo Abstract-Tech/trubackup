@@ -35,5 +35,10 @@
 			"secret_key": "secret_key",
 			"bucket": "test"
 		}
+	],
+	"localfs": [
+        	{
+        		"path": "./test"
+        	}
 	]
 }
