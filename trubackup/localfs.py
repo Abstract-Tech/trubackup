@@ -3,9 +3,9 @@ from pathlib import Path
 
 from pydantic import BaseModel, field_validator
 
-from edxbackup.context import LocalFSTarget
-from edxbackup.restic.backup import backup_fs
-from edxbackup.restic.restore import restore_fs
+from trubackup.context import LocalFSTarget
+from trubackup.restic.backup import backup_fs
+from trubackup.restic.restore import restore_fs
 
 
 class LocalFSConfig(BaseModel):

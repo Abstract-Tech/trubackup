@@ -15,4 +15,4 @@ export MC_HOST_test=http://$MINIO_ACCESS_KEY:$MINIO_SECRET_KEY@localhost:19000
 export RESTIC_REPOSITORY="rest:http://localhost:18000"
 export RESTIC_PASSWORD="foobar"
 
-export EDXBACKUP_CONFIG_PATH=./edxbackup.json
+export TRUBACKUP_CONFIG_PATH=./trubackup.json

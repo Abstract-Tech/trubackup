@@ -1,9 +1,9 @@
 [Unit]
-Description=Daily edxbackup run
+Description=Daily trubackup run
 
 [Timer]
 OnCalendar=*-*-* 04:00:00
-Unit=edxbackup.service
+Unit=trubackup.service
 
 [Install]
 WantedBy=timers.target

@@ -6,10 +6,10 @@ import os
 
 def env_policy():
     return {
-        "daily": os.environ.get("EDXBACKUP_KEEP_WITHIN_DAILY"),
-        "weekly": os.environ.get("EDXBACKUP_KEEP_WITHIN_WEEKLY"),
-        "monthly": os.environ.get("EDXBACKUP_KEEP_WITHIN_MONTHLY"),
-        "yearly": os.environ.get("EDXBACKUP_KEEP_WITHIN_YEARLY"),
+        "daily": os.environ.get("TRUBACKUP_KEEP_WITHIN_DAILY"),
+        "weekly": os.environ.get("TRUBACKUP_KEEP_WITHIN_WEEKLY"),
+        "monthly": os.environ.get("TRUBACKUP_KEEP_WITHIN_MONTHLY"),
+        "yearly": os.environ.get("TRUBACKUP_KEEP_WITHIN_YEARLY"),
     }
 
 

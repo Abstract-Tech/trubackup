@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup with trubackup
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/docker run -v /etc/trubackup.json:/etc/trubackup.json --rm abstract2tech/trubackup:<version> trubackup backup
+Environment="RESTIC_REPOSITORY=<FILL YOUR OWN>"
+Environment="RESTIC_PASSWORD=<FILL YOUR OWN>"

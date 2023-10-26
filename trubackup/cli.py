@@ -1,6 +1,6 @@
-from edxbackup import backup
-from edxbackup import info
-from edxbackup import restore
+from trubackup import backup
+from trubackup import info
+from trubackup import restore
 
 import click
 import os
@@ -13,7 +13,7 @@ RESTIC_VARS = ["RESTIC_REPOSITORY", "RESTIC_PASSWORD"]
 def main() -> None:
     if not set(os.environ.keys()).issuperset(RESTIC_VARS):
         click.echo(
-            f"Environment variables must be set for edxbackup to work: {RESTIC_VARS}"
+            f"Environment variables must be set for trubackup to work: {RESTIC_VARS}"
         )
 
 

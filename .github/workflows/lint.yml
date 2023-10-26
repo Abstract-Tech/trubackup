@@ -15,7 +15,7 @@ permissions:
 env:
   MYSQL_VERSION: 5.6.36
   MONGO_VERSION: 3.2.16
-  DOCKER_IMAGE: abstract2tech/edxbackup
+  DOCKER_IMAGE: abstract2tech/trubackup
 
 jobs:
   lint:

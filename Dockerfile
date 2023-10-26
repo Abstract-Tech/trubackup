@@ -6,7 +6,7 @@ WORKDIR /app
 COPY requirements.txt pyproject.toml /app/
 RUN pip install -r /app/requirements.txt
 
-COPY edxbackup /app/edxbackup
+COPY trubackup /app/trubackup
 RUN pip wheel /app
 
 FROM python:3.11-slim-bullseye

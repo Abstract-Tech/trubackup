@@ -1,5 +1,5 @@
 from collections.abc import Iterator
-from edxbackup.restic.snapshot import ResticSnapshot
+from trubackup.restic.snapshot import ResticSnapshot
 from pydantic import BaseModel
 
 

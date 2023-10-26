@@ -4,9 +4,9 @@ MySQL dump and restore functions.
 https://github.com/mydumper/mydumper is a runtime requirement
 """
 from datetime import datetime
-from edxbackup.context import MysqlTarget
-from edxbackup.restic.backup import backup_stdin
-from edxbackup.restic.restore import restore_stream
+from trubackup.context import MysqlTarget
+from trubackup.restic.backup import backup_stdin
+from trubackup.restic.restore import restore_stream
 from pydantic import BaseModel
 
 

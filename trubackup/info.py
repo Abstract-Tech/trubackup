@@ -1,5 +1,5 @@
-from edxbackup.restic.snapshot import list_snapshot_groups
-from edxbackup.restic.snapshot import list_snapshots
+from trubackup.restic.snapshot import list_snapshot_groups
+from trubackup.restic.snapshot import list_snapshots
 
 import click
 

@@ -1,7 +1,7 @@
 from datetime import datetime
-from edxbackup.context import S3Target
-from edxbackup.restic.backup import backup_stdin
-from edxbackup.restic.restore import restore_stream
+from trubackup.context import S3Target
+from trubackup.restic.backup import backup_stdin
+from trubackup.restic.restore import restore_stream
 from pydantic import BaseModel
 
 

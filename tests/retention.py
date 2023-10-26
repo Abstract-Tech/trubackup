@@ -8,6 +8,6 @@ BASE_DATE = datetime.fromisoformat("2012-11-01")
 full_year = [BASE_DATE + timedelta(i) for i in range(365)]
 
 for day in full_year:
-    edxbackup_args = ["edxbackup", "backup", "--time", day.isoformat()]
+    trubackup_args = ["trubackup", "backup", "--time", day.isoformat()]
 
-    Popen(edxbackup_args).wait()
+    Popen(trubackup_args).wait()

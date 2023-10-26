@@ -4,9 +4,9 @@ PostgreSQL dump and restore functions.
 import os
 
 from datetime import datetime
-from edxbackup.context import MysqlTarget, PostgresqlTarget
-from edxbackup.restic.backup import backup_stdin
-from edxbackup.restic.restore import restore_stream
+from trubackup.context import MysqlTarget, PostgresqlTarget
+from trubackup.restic.backup import backup_stdin
+from trubackup.restic.restore import restore_stream
 from pydantic import BaseModel
 
 

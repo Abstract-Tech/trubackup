@@ -7,7 +7,7 @@ import click
 backup_time_option = click.option(
     "--time",
     type=DateTime(),
-    envvar="EDXBACKUP_BACKUP_TIME",
+    envvar="TRUBACKUP_BACKUP_TIME",
     default=datetime.now(),
     help="Override backup time",
 )
@@ -15,7 +15,7 @@ backup_time_option = click.option(
 config_path_option = click.option(
     "--config",
     "-c",
-    envvar="EDXBACKUP_CONFIG_PATH",
-    default="/etc/edxbackup.json",
+    envvar="TRUBACKUP_CONFIG_PATH",
+    default="/etc/trubackup.json",
     help="Path to JSON file containing info about databases to dump",
 )

@@ -3,11 +3,11 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "edxbackup"
+name = "trubackup"
 authors = [
     {name = "Illia Shestakov", email = "i.shestakov@abstract-technology.de"},
 ]
-description = "My package description"
+description = "Piping backup tool wrapped around restic"
 requires-python = ">=3.11"
 license = {text = "Apache-2.0"}
 dependencies = [
@@ -21,8 +21,8 @@ dynamic = ["version", "readme"]
 find = {}
 
 [tool.setuptools.dynamic]
-version = {attr = "edxbackup.VERSION"}
+version = {attr = "trubackup.VERSION"}
 readme = {file = ["README.rst"]}
 
 [project.scripts]
-edxbackup = "edxbackup.cli:main"
+trubackup = "trubackup.cli:main"

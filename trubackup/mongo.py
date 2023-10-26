@@ -4,9 +4,9 @@ MongoDB dump and restore functions.
 mongodump/mongorestore is a runtime dependency
 """
 from datetime import datetime
-from edxbackup.context import MongoTarget
-from edxbackup.restic.backup import backup_stdin
-from edxbackup.restic.restore import restore_stream
+from trubackup.context import MongoTarget
+from trubackup.restic.backup import backup_stdin
+from trubackup.restic.restore import restore_stream
 from pydantic import BaseModel
 
 
