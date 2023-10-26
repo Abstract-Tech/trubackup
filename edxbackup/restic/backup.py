@@ -60,7 +60,7 @@ def backup_fs(
     upload_args = [
         "restic",
         "backup",
-        path,
+        str(path),
         "--host",
         hostname,
         "--tag",

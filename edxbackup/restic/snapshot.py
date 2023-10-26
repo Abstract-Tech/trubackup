@@ -9,17 +9,17 @@ class ResticSnapshot(BaseModel):
     A model of restic snapshot as in `restic snapshots --json`
     """
 
-    time: str | None
+    time: str
     parent: str | None = None
     tree: str | None = None
-    paths: list[str] = None
+    paths: list[str] = []
     hostname: str | None = None
     username: str | None = None
-    tags: list[str] | None = None
+    tags: list[str] = []
     id: str
     gid: int | None = None
     program_version: str | None = None
-    short_id: str | None
+    short_id: str
 
 
 def list_snapshot_groups() -> dict[str, list[ResticSnapshot]]:

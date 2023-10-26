@@ -34,4 +34,4 @@ def dump_local_fs(
 
 
 def restore_local_fs(local_info: LocalFSConfig, target: LocalFSTarget) -> bool:
-    return restore_fs(local_info.path, target.id)
+    return restore_fs(Path(local_info.path), target.id)
