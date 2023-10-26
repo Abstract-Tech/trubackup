@@ -1,3 +1,14 @@
+FROM python:3.11-slim-bullseye as builder
+
+RUN mkdir /app
+WORKDIR /app
+
+COPY requirements.txt pyproject.toml /app/
+RUN pip install -r /app/requirements.txt
+
+COPY edxbackup /app/edxbackup
+RUN pip wheel /app
+
 FROM python:3.11-slim-bullseye
 
 RUN mkdir /app
@@ -23,8 +34,7 @@ RUN curl -L https://github.com/restic/restic/releases/download/v${RESTIC_VERSION
 	bunzip2 > /usr/local/bin/restic && chmod +x /usr/local/bin/restic
 
 COPY requirements.txt pyproject.toml /app/
-COPY edxbackup /app/edxbackup
+COPY --from=builder /app/*.whl /tmp
+RUN pip install /tmp/*.whl && rm -r /tmp/*.whl
 
 COPY contrib/delete_old.py /usr/local/bin/delete_old.py
-
-RUN pip install -r /app/requirements.txt && pip install /app
